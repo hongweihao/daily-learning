@@ -35,7 +35,6 @@ public class SumIsPathInBinaryTree {
             System.out.println();
             result.add(new ArrayList<Integer>(path));
         }
-
         // 不是叶子节点就继续遍历子节点
         if (root.left != null){
             find(root.left, target, current, path, result);
@@ -43,10 +42,8 @@ public class SumIsPathInBinaryTree {
         if (root.right != null){
             find(root.right, target, current, path, result);
         }
-
         // 返回父节点，删除路径中的当前节点
         path.remove(path.size() - 1);
-
         return result;
     }
 

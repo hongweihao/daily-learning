@@ -1,7 +1,5 @@
 package mkii.finger1;
 
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * 在一个排序的链表中，存在重复的结点，请删除该链表中重复的结点，重复的结点不保留，返回链表头指针。
@@ -38,14 +36,16 @@ public class RemoveDuplication {
         return pHead;
     }
     // 如果重复，一个不剩
+    // 递推公式：
     public ListNode deleteDuplication2(ListNode pHead) {
         if (pHead == null || pHead.next == null){
             return pHead;
         }
-
         return rmDuplication(pHead);
     }
 
+    // 当前节点与下一个节点不同，返回当前节点；当前节点与下n个系节点相等，返回下n+1个节点
+    //
     private ListNode rmDuplication(ListNode next){
         // 空的或者只存在1个节点就不会有重复节点了
         if (next == null || next.next == null){
@@ -91,6 +91,5 @@ public class RemoveDuplication {
 
         System.out.println(head.val);
         System.out.println(head.next.val);
-
     }
 }

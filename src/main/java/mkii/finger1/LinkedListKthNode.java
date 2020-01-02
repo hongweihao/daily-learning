@@ -37,13 +37,8 @@ public class LinkedListKthNode {
         return list.get(list.size() - k);
     }
 
-
-
     public static void main(String[] args) {
-
         LinkedListKthNode listKthNode = new LinkedListKthNode();
-
-
     }
 }
 

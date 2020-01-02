@@ -13,7 +13,6 @@ public class LinkedAndCircle {
         if (pHead == null) {
             return null;
         }
-
         // 用map存已经遍历的节点
         Map<ListNode, Integer> map = new HashMap<>();
         ListNode current = pHead;

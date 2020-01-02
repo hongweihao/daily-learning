@@ -1,8 +1,5 @@
 package mkii.finger1;
 
-import com.sun.org.apache.xerces.internal.impl.XMLEntityHandler;
-
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 

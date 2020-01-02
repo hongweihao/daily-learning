@@ -25,27 +25,18 @@ package mkii.finger1;
 public class BinaryTreeMirror {
     public void Mirror(TreeNode root){
         root = swapChildren(root);
-        System.out.println("ddon");
     }
-
+    // 交换子树，子节点
     private TreeNode swapChildren(TreeNode root){
         if (root == null){
             return root;
         }
-        // 有一个子树为空的情况
-        if (root.left == null){
-            root.left = root.right;
-            root.right = null;
-        }else if (root.right == null){
-            root.right = root.left;
-            root.left = null;
-        }else {
-            // 两个子树都不为空的情况，交换子树
-            TreeNode temp;
-            temp = root.left;
-            root.left = root.right;
-            root.right = temp;
-        }
+        // 交换子树
+        TreeNode temp;
+        temp = root.left;
+        root.left = root.right;
+        root.right = temp;
+
         // 交换子树之后，再交换子树的子树
         root.left = swapChildren(root.left);
         root.right = swapChildren(root.right);

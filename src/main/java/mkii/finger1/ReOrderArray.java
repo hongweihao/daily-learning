@@ -14,11 +14,7 @@ package mkii.finger1;
  * 5.{1,3,5,2,4,6}
  */
 public class ReOrderArray {
-
-    /**
-     * 用O(n)空间的新数组存储
-     * @param array
-     */
+    // 用O(n)空间的新数组存储
     public void reOrderArray(int [] array) {
         if (array == null || array.length <= 0){
             return;
@@ -49,7 +45,6 @@ public class ReOrderArray {
             array[i] = newArray[i];
         }
 
-
         array = newArray;
         System.out.println("done~");
     }
@@ -67,5 +62,4 @@ public class ReOrderArray {
         reOrderArray.reOrderArray(c);
         reOrderArray.reOrderArray(d);*/
     }
-
 }

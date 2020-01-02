@@ -8,7 +8,6 @@ package mkii.finger1;
  *
  */
 public class MergeList {
-
     public ListNode merge(ListNode list1,ListNode list2) {
         // 注意这里，可能只有一个链表为空的情况
         // 这里也可以保证，递归过程中，其中一个链表已经遍历完结点，另一个链表能接上

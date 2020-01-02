@@ -20,7 +20,6 @@ public class CloneLinked {
         Map<Integer, RandomListNode> nodes = new  HashMap<>();
         // clone list
         RandomListNode head = createNode(pHead, nodes);
-
         return head;
     }
     private RandomListNode createNode(RandomListNode head, Map<Integer, RandomListNode> nodes){

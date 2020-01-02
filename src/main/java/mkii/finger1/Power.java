@@ -13,9 +13,8 @@ package mkii.finger1;
  *
  */
 public class Power {
-
+    // 作弊解法, java API
     public double power(double base, int exponent) {
-        // 作弊解法, java API
         return Math.pow(base, exponent);
     }
 
@@ -34,13 +33,12 @@ public class Power {
         for (int i = 0; i < Math.abs(exponent); i++){
             result *= base;
         }
-
         return exponent > 0 ? result : 1 / result;
     }
+
     public static void main(String[] args) throws Exception{
         Power power = new Power();
         System.out.println(power.power(-2,-3));
         System.out.println(power.power1(-2,-3));
     }
-
 }

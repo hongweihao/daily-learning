@@ -3,14 +3,12 @@ package mkii.finger1;
 import java.util.Stack;
 
 /**
- *
  * 定义栈的数据结构，请在该类型中实现一个能够得到栈中所含最小元素的min函数（时间复杂度应为O（1））。
  * <p>
  *     这里复杂度为O(n)，可以采取辅助栈，即空间换时间
  * 测试：
  */
 public class MinStack {
-
     // min在第一， top在第二
     private Stack<Integer> stack = new Stack<>();
 
@@ -94,7 +92,6 @@ public class MinStack {
     }
     public static void main(String[] args) {
         MinStack minStack = new MinStack();
-
         minStack.push(4);
         System.out.println(minStack.min());
         minStack.push(3);
@@ -112,5 +109,4 @@ public class MinStack {
         minStack.push(0);
         System.out.println(minStack.min());
     }
-
 }

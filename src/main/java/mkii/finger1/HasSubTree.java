@@ -11,6 +11,7 @@ package mkii.finger1;
  * 4. null || null
  */
 public class HasSubTree {
+    // A的当前节点能否匹配到B的根节点，如果能匹配到则继续比较子节点；不能匹配到则递归判断子树能否匹配到
     public boolean hasSubtree(TreeNode root1, TreeNode root2) {
         if (root1 == null || root2 == null) {
             return false;
@@ -20,7 +21,7 @@ public class HasSubTree {
         if (root1.val == root2.val) {
             flag = hasNode(root1, root2);
         }
-        // 左子树查找
+        // 左子树查找，如果root的值不匹配需要在子树中查找
         if (!flag) {
             flag = hasSubtree(root1.left, root2);
         }
@@ -31,6 +32,7 @@ public class HasSubTree {
         return flag;
     }
 
+    // 判断两个树是否相同，root已经是相等了的
     private boolean hasNode(TreeNode root1, TreeNode root2) {
         // 递归出口，B树全部遍历完
         if (root2 == null) {

@@ -4,7 +4,7 @@ import java.math.BigInteger;
 
 /**
  * 打印1到n位十进制数
- * (竟然需要考虑大数问题) 可以用java的api BigInteger
+ * (需要考虑大数问题) 可以用java的api BigInteger
  *
  * 测试：
  * 0,-1,1,5

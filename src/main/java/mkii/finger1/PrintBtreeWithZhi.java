@@ -1,6 +1,5 @@
 package mkii.finger1;
 
-
 import java.util.*;
 
 /**
@@ -8,8 +7,6 @@ import java.util.*;
  * 即第一行按照从左到右的顺序打印，
  * 第二层按照从右至左的顺序打印，
  * 第三行按照从左到右的顺序打印，其他行以此类推。
- *
- *
  *
  */
 public class PrintBtreeWithZhi {
@@ -181,7 +178,5 @@ public class PrintBtreeWithZhi {
             }
             System.out.println();
         }
-
     }
-
 }

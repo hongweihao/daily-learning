@@ -56,16 +56,8 @@ public class SymmetricalBinaryTree {
         node3.left = node6;
         node3.right = node7;
 
-
         SymmetricalBinaryTree symmetricalBinaryTree = new SymmetricalBinaryTree();
         //System.out.println(symmetricalBinaryTree.isSymmetrical(node));
         System.out.println(symmetricalBinaryTree.isSymmetrical(node1));
-
-        /*
-        {8,6,6,5,7,7,5}
-         */
-
-
-
     }
 }

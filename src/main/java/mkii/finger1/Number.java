@@ -1,7 +1,5 @@
 package mkii.finger1;
 
-import com.sun.org.apache.regexp.internal.REUtil;
-
 /**
  * 输入一个整数，输出该数二进制表示中1的个数。其中负数用补码表示。
  * & 与，只有11才是1
@@ -45,14 +43,14 @@ public class Number {
     }
 
     /**
-     * 对每个
+     * 让n的每一位都与1做&操作，统计
      * @param n
      * @return
      */
     public int NumberOf2(int n){
         int count = 0;
         int flag = 1;
-        // 为什么flag>0不行？因为int的范围会导致最后一次左移溢出为负数，每次左移都会进一位，最后超出限制了为0
+        // flag != 0表示flag中1的位置最后左移超过位数（这里int是32位，范围在-2^31~2^31-1之间）,1(后面跟31个0)超过最大区间值会溢出，是一个负数
         while (flag != 0){
             // n & flag 都是0的时候才会满足==0，但是flag可能是正数或者负数但是不可能是0
             // 为什么>0不行？ 最后一次flag溢出时，flag是负数，如果n是正数，那么就会有<0的情况出现，就会漏掉
@@ -79,8 +77,17 @@ public class Number {
     }
 
     public static void main(String[] args) {
-        Number number = new Number();
-        System.out.println(number.NumberOf3(5));
-        System.out.println(number.NumberOf0(5));
+        /*Number number = new Number();
+        System.out.println(number.NumberOf2(-5));
+        System.out.println(number.NumberOf0(-5));*/
+        int a = 1;
+        while (a != 0) {
+            System.out.println(a);
+            a = a << 1;
+        }
+        System.out.println(Integer.MAX_VALUE);
+
+        System.out.println(Integer.toBinaryString(-2147483648));
+
     }
 }
