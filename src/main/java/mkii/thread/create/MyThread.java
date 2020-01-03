@@ -1,6 +1,6 @@
-package mkii.thread;
+package mkii.thread.create;
 
-public class Th extends Thread {
+public class MyThread extends Thread {
 
     @Override
     public void run(){
@@ -16,8 +16,8 @@ public class Th extends Thread {
 
     public static void main(String[] argv){
 
-        new Th().start();
-        new Th().start();
+        new MyThread().start();
+        new MyThread().start();
 
     }
 

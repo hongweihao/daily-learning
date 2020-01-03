@@ -1,38 +1,38 @@
-package mkii.thread;
+package mkii.thread.create;
 
 import java.util.concurrent.*;
 
-public class Ca implements Callable<String> {
+public class MyCallable implements Callable<String> {
 
-    private String flag;
+    private String threadName;
 
-    Ca(String flag) {
-        this.flag = flag;
+    public MyCallable(String threadName) {
+        this.threadName = threadName;
     }
 
     @Override
     public String call() throws Exception {
 
         for (int i = 0; i < 5; i++){
-            try {
+            /*try {
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
-            }
-            System.out.println(flag);
+            }*/
+            System.out.println(threadName + " printed: " + i);
         }
 
-        return "thread" + flag;
+        return threadName + " - completed";
     }
 
     public static void main(String[] argv) throws Exception {
 
-        Callable a = new Ca("A");
-        Callable b = new Ca("B");
-        Callable c = new Ca("C");
-        Callable d = new Ca("D");
-        Callable e = new Ca("E");
-        Callable f = new Ca("F");
+        Callable a = new MyCallable("A");
+        Callable b = new MyCallable("B");
+        Callable c = new MyCallable("C");
+        Callable d = new MyCallable("D");
+        Callable e = new MyCallable("E");
+        Callable f = new MyCallable("F");
 
         /*FutureTask<String> task1 = new FutureTask<>(a);
         FutureTask<String> task2 = new FutureTask<>(b);*/

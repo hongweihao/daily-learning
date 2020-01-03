@@ -7,9 +7,9 @@ public class SynTest {
 
     public static void main(String[] args) {
 
-        new Comsumer("小明 ").start();
-        new Comsumer("黄牛 ").start();
-        new Comsumer("别人 ").start();
+        new Consumer("小明 ").start();
+        new Consumer("黄牛 ").start();
+        new Consumer("别人 ").start();
     }
 }
 
@@ -42,12 +42,12 @@ class BusTicket {
     }
 }
 
-class Comsumer extends Thread {
+class Consumer extends Thread {
 
     private String name;
     static BusTicket busTicket = new BusTicket();
 
-    public Comsumer(String name) {
+    public Consumer(String name) {
         this.name = name;
     }
 
