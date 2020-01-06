@@ -1,35 +1,43 @@
 package mkii.socket;
 
 
-import java.io.*;
+import mkii.rpc.entity.Request;
+
+import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.OutputStream;
 import java.net.Socket;
-import java.util.Scanner;
 
 
 public class Client {
+
     public static void main(String[] args) throws Exception {
-        ClientReceiveThread clientReceiveThread = new ClientReceiveThread("client", null);
-        clientReceiveThread.start();
-        System.out.println("client is ready...");
+        Socket socket = new Socket("localhost", 8888);
 
-        Socket socket = null;
-        OutputStream outputStream = null;
-        while (true) {
-            socket = new Socket("localhost", 8888);
-            outputStream = socket.getOutputStream();
+        // 需要远程调用的对象信息
+        Request request = new Request();
+        request.setClassName("mkii.socket.RemoteClass");
+        request.setMethodName("method2");
+        request.setParamTypes(new Class[]{String.class});
+        request.setParameters(new Object[]{"hihi"});
 
-            Scanner scanner = new Scanner(System.in);
-            String message = scanner.nextLine();
-            outputStream.write(message.getBytes());
-            outputStream.flush();
-            socket.shutdownOutput();
-            if ("exit".equals(message)){
-                break;
-            }
-        }
+        // 通过socket流发送信息到server
+        OutputStream outputStream = socket.getOutputStream();
+        ObjectOutputStream objectOutputStream = new ObjectOutputStream(outputStream);
+        objectOutputStream.writeObject(request);
+        objectOutputStream.flush();
 
-        //关闭资源
+        // 取得结果
+        InputStream inputStream = socket.getInputStream();
+        ObjectInputStream objectInputStream = new ObjectInputStream(inputStream);
+        String s = (String) objectInputStream.readObject();
+        System.out.println("remote process call result: " + s);
+
+        objectOutputStream.close();
+        objectInputStream.close();
         outputStream.close();
+        inputStream.close();
         socket.close();
     }
 }

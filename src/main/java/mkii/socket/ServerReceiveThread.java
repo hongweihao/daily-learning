@@ -1,42 +1,37 @@
 package mkii.socket;
 
 import lombok.SneakyThrows;
+import mkii.rpc.entity.Request;
 
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.ServerSocket;
+import java.io.*;
 import java.net.Socket;
 
 public class ServerReceiveThread extends Thread {
+    private Socket socket;
 
-    private String threadName;
-    private ServerSocket serverSocket;
-
-    public ServerReceiveThread(String threadName, ServerSocket serverSocket){
-        this.threadName = threadName;
-        this.serverSocket = serverSocket;
-
+    public ServerReceiveThread(Socket socket){
+        this.socket = socket;
     }
 
     @SneakyThrows
     @Override
     public void run(){
-        while (true) {
-            //调用accept()方法开始监听，等待客户端的连接。这里会阻塞
-            Socket socket = null;
-            socket = serverSocket.accept();
-            //获取输入流，并读取客户端信息
-            InputStream inputStream = socket.getInputStream();
-            InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
-            BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
-            String info = null;
-            while ((info = bufferedReader.readLine()) != null) {
-                /*if ("exit".equals(info)){
-                    return;
-                }*/
-                System.out.println(threadName + " received：" + info);
-            }
-        }
+        InputStream inputStream = socket.getInputStream();
+        ObjectInputStream objectInputStream = new ObjectInputStream(inputStream);
+        Object object = objectInputStream.readObject();
+
+        // 调用逻辑处理
+        Handler handler = new Handler();
+        Object o = handler.serverHandler((Request) object);
+
+        OutputStream outputStream = socket.getOutputStream();
+        ObjectOutputStream objectOutputStream = new ObjectOutputStream(outputStream);
+        objectOutputStream.writeObject(o);
+        objectOutputStream.flush();
+
+        objectOutputStream.close();
+        objectInputStream.close();
+        outputStream.close();
+        inputStream.close();
     }
 }
