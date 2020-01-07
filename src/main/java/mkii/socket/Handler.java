@@ -5,6 +5,10 @@ import mkii.rpc.entity.Request;
 
 import java.lang.reflect.Method;
 
+/**
+ * 通过request实例，利用反射机制调用对应方法
+ *
+ */
 public class Handler {
 
     @SneakyThrows
