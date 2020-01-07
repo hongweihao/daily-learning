@@ -1,5 +1,8 @@
 package mkii.socket.nio;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+
 import java.io.*;
 import java.nio.ByteBuffer;
 
@@ -43,6 +46,7 @@ public class ConvertUtil {
             }
         }
     }
+    // nio
     public static ByteBuffer Object2ByteBuffer(Object object){
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         ObjectOutputStream objectOutputStream = null;
@@ -81,5 +85,17 @@ public class ConvertUtil {
             } catch (IOException e) {
             }
         }
+    }
+
+    // netty
+    public static Object ByteBuf2Object(ByteBuf byteBuf){
+        byte[] bytes = new byte[byteBuf.readableBytes()];
+        byteBuf.readBytes(bytes);
+        return bytes2Object(bytes);
+    }
+
+    public static ByteBuf Object2ByteBuf(Object o){
+        byte[] bytes = object2Bytes(o);
+        return Unpooled.copiedBuffer(bytes);
     }
 }

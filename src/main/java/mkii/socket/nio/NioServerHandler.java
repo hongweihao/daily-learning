@@ -23,11 +23,9 @@ public class NioServerHandler implements Runnable {
         ByteBuffer byteBuffer = ByteBuffer.allocate(1024);
         socketChannel.read(byteBuffer);
 
-        /*// 这种方式将byteBuffer转为byte[]会导致stream header error
-        int len = byteBuffer.limit() - byteBuffer.position();
-        System.out.println(len);
-        byte[] bytes = new byte[len];
-        byteBuffer.get(bytes, 0, bytes.length);*/
+        // 这种方式将byteBuffer转为byte[]会抛出：java.io.StreamCorruptedException: invalid stream header: 00000000
+        /*byte[] bytes = new byte[byteBuffer.remaining()];
+        byteBuffer.get(bytes);*/
 
         byte[] bytes = byteBuffer.array();
         Request request = (Request) ConvertUtil.bytes2Object(bytes);
