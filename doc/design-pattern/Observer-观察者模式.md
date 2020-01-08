@@ -150,3 +150,5 @@ public class CurrentConditionDisplay implements Observer {
 
 
 
+完整代码：[GitHub](https://github.com/hongweihao/daily-study/tree/master/src/main/java/mkii/designPattern/observer)
+

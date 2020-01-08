@@ -117,3 +117,5 @@ public class Strategy {
 
 > `SpringMVC`的`ViewResolver`使用策略模式 -> [SpringMVC: 策略模式下的视图解析](https://juejin.im/post/5ce405d75188252db664847d)
 
+完整代码：[GitHub](https://github.com/hongweihao/daily-study/tree/master/src/main/java/mkii/designPattern/strategy)
+

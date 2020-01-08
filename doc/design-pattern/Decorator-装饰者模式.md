@@ -85,3 +85,8 @@ public class Whip extends CondimentDecorator {
 `FilterInputStream`相当于`CondimentDecorator`
 
 `DataInputStream`...相当于`Whip`
+
+
+
+完整代码 -> [GitHub](https://github.com/hongweihao/daily-study/tree/master/src/main/java/mkii/designPattern/decorator)
+

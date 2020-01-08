@@ -340,3 +340,9 @@ public class FactoryMethodTest {
 
 ```
 
+简单完整代码 -> [GitHub](https://github.com/hongweihao/daily-study/tree/master/src/main/java/mkii/designPattern/factory/simplefactory)
+
+工厂方法完整代码 -> [GitHub](https://github.com/hongweihao/daily-study/tree/master/src/main/java/mkii/designPattern/factory/factorymethod)
+
+抽象工厂完整代码 -> 未完成
+
