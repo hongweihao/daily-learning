@@ -2,12 +2,7 @@ package mkii.io;
 
 import java.io.*;
 import java.nio.ByteBuffer;
-import java.nio.channels.AsynchronousFileChannel;
-import java.nio.channels.CompletionHandler;
 import java.nio.channels.FileChannel;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
 
 public class LocalFileUtil {
 
@@ -133,24 +128,6 @@ public class LocalFileUtil {
 			while ((n = is.read(b, 0, (int)f.length())) != -1) {
 				str = new String(b, 0, n, encoding);
 			}
-			b = null;
-		} finally {
-			if (is!=null)
-				is.close();
-		}
-		return str;
-	}
-	
-	public static String readBigFileContentDirectlyToBase64(String fileFullName) throws Exception {
-		String str = null;
-		InputStream is = null;
-		File f = new File(fileFullName);
-		is = new FileInputStream(f);
-		try {
-			byte[] b = new byte[is.available()];
-			int readLen = is.read(b, 0, b.length);
-			if (readLen>0)
-				str = Base64Util.getBASE64(b);
 			b = null;
 		} finally {
 			if (is!=null)
