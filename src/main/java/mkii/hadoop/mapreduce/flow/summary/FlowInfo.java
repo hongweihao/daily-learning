@@ -9,14 +9,14 @@ import java.io.IOException;
 
 @Data
 public class FlowInfo implements WritableComparable<FlowInfo> {
-    private String timestrap;
+    /*private String timestrap;
     private String phone;
     private String mac;
     private String ip;
     private String domain;
     private Long a;
     private Long b;
-    private Long c;
+    private Long c;*/
     private Long download;
     private Long upload;
     private Long all;

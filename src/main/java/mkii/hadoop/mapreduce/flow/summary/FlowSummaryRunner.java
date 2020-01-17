@@ -21,12 +21,19 @@ public class FlowSummaryRunner {
 
         Job job = Job.getInstance(conf);
         job.setJarByClass(FlowSummaryRunner.class);
+
         job.setMapperClass(FlowSummaryMapper.class);
         job.setReducerClass(FlowSummaryReducer.class);
+
+        // 当map和reduce两个阶段的output不一样的时候需要设置
+        job.setMapOutputKeyClass(Text.class);
+        job.setMapOutputValueClass(FlowInfo.class);
+        // 设置最终的output格式
         job.setOutputKeyClass(Text.class);
         job.setOutputValueClass(Text.class);
+
         FileInputFormat.setInputPaths(job, new Path("/flowSummary/input"));
-        FileOutputFormat.setOutputPath(job, new Path("/flowSummary/output"));
+        FileOutputFormat.setOutputPath(job, new Path("/flowSummary/out"));
         job.waitForCompletion(true);
     }
 }

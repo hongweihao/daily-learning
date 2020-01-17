@@ -11,7 +11,7 @@ public class FlowSummaryMapper extends Mapper<LongWritable, Text, Text, FlowInfo
     @Override
     protected void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
         String[] infos = StringUtils.split(value.toString(), '\t');
-        if (infos == null || infos.length != 11){
+        if (infos == null || infos.length != 11 || !checkPhone(infos[1])){
             return;
         }
         Long download = Long.valueOf(infos[8]);
@@ -24,5 +24,9 @@ public class FlowSummaryMapper extends Mapper<LongWritable, Text, Text, FlowInfo
         flowInfo.setAll(all);
 
         context.write(new Text(infos[1]), flowInfo);
+    }
+
+    private boolean checkPhone(String phone){
+        return phone != null && phone.length() == 11;
     }
 }
