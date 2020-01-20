@@ -31,7 +31,7 @@ public class ProductBean implements Writable {
     // 使用writeUTF和readUTF正常
     // https://stackoverflow.com/questions/18945202/whats-the-difference-between-writeutf-and-writechars
     // writeChars方法使用2byte的char写入，使用readChar读取的时候需要知道长度
-    // writeUTF方法使用UTF编码，开头就是长度，所以使用readUTF的时候可以读取到正确长度的内容
+    // writeUTF方法使用UTF编码，UTF编码的开头就是长度，所以使用readUTF的时候可以读取到正确长度的内容
 
     @Override
     public void write(DataOutput dataOutput) throws IOException {

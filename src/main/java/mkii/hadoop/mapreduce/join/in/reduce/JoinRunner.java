@@ -15,6 +15,10 @@ import java.io.IOException;
  *
  * 思路：
  * 先在map根据on条件分组，再交给reduce
+ *
+ * 注意：
+ * bean类的序列化与反序列化问题
+ *
  */
 public class JoinRunner {
     public static void main(String[] args) throws IOException, ClassNotFoundException, InterruptedException {

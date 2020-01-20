@@ -4,39 +4,38 @@ import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Reducer;
 
 import java.io.IOException;
-import java.util.Iterator;
+import java.util.ArrayList;
+import java.util.List;
 
-public class JoinReducer extends Reducer<Text, ProductBean, Text, ProductBean> {
+public class JoinReducer extends Reducer<Text, ProductBean, Text, Text> {
     @Override
     protected void reduce(Text key, Iterable<ProductBean> values, Context context) throws IOException, InterruptedException {
 
-        ProductBean product = null;
+        /*
+        注意：
+        1. 对象重用
+        2. 迭代器只能遍历一次
+         */
 
-        Iterator<ProductBean> iterator = values.iterator();
+        List<String> tOrder = new ArrayList<>();
+        List<String> tProduct = new ArrayList<>();
 
-        for (ProductBean productBean : values) {
-            String name = productBean.getName();
-            System.out.println("reduce： " + productBean.toString());
-            if (name != null && !"".equals(name)){
-                product = productBean;
-                break;
+        for (ProductBean value : values) {
+            String name = value.getName();
+            if (name == null || "".equals(name)){
+                // 这里相当于对象的副本。
+                // 如果把对象放入list中，由于对象重用，会让所有的内容都相同
+                String order = value.getId() + "\t" + value.getDate();
+                tOrder.add(order);
+            }else {
+                String product = value.getName() + "\t" + value.getCategoryId() + "\t" + value.getPrice();
+                tProduct.add(product);
             }
         }
 
-        if (product == null){
-            return;
-        }
-
-        while (iterator.hasNext()){
-            ProductBean  productBean = iterator.next();
-            String name = productBean.getName();
-            if (name == null || "".equals(name)){
-                System.out.println("");
-
-                productBean.setName("name");
-                productBean.setCategoryId(product.getCategoryId());
-                productBean.setPrice(product.getPrice());
-                context.write(new Text(productBean.toString()), productBean);
+        for (String s : tOrder) {
+            for (String s1 : tProduct) {
+                context.write(key, new Text(s + "\t" + s1));
             }
         }
     }

@@ -31,7 +31,7 @@ public class JoinMapper extends Mapper<LongWritable, Text, Text, ProductBean> {
             productBean.setName(fields[1]);
             productBean.setPrice(fields[3]);
         }
-        System.out.println(text + " " + productBean.toString());
+        System.out.println("put: " + text + " -> " + productBean.toString());
         context.write(text, productBean);
     }
 
