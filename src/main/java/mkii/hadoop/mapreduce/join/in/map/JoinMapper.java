@@ -1,5 +1,9 @@
 package mkii.hadoop.mapreduce.join.in.map;
 
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FSDataInputStream;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
@@ -23,26 +27,18 @@ public class JoinMapper extends Mapper<LongWritable, Text, Text, Text> {
         // 取出缓存中的文件
         URI[] cacheFiles = context.getCacheFiles();
         for (URI cacheFile : cacheFiles) {
-            // 会打印全文件名
+            // 会打印出全文件名
             System.out.println(cacheFile);
 
-            Configcontext.getConfiguration();
-
-
-
-
-
-
+            Configuration configuration = context.getConfiguration();
+            FileSystem fileSystem = FileSystem.get(configuration);
+            FSDataInputStream fsDataInputStream = fileSystem.open(new Path(cacheFile.getPath()));
 
 
         }
 
         // 从本地读取文件，加载小表到内存，hashMap
         BufferedReader bufferedReader = new BufferedReader(new FileReader("D:\\Code\\daily-study\\doc\\hadoop\\mapreduce\\joinCase\\t_product"));
-
-
-
-
 
 
         String s;
