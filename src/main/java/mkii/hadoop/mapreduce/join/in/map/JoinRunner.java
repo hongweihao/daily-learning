@@ -1,7 +1,5 @@
 package mkii.hadoop.mapreduce.join.in.map;
 
-import mkii.hadoop.mapreduce.join.in.reduce.JoinMapper;
-import mkii.hadoop.mapreduce.join.in.reduce.ProductBean;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.Text;
@@ -25,15 +23,18 @@ public class JoinRunner {
         conf.set("fs.defaultFS", "hdfs://localhost:9000");
 
         Job job = Job.getInstance(conf);
-        job.setJarByClass(JoinRunner.class);
+        job.setJarByClass(mkii.hadoop.mapreduce.join.in.map.JoinRunner.class);
 
         job.setMapperClass(JoinMapper.class);
-        job.setReducerClass(JoinReducer.class);
+        //job.setReducerClass(JoinReducer.class);
 
         // 设置reduce任务数为0
         job.setNumReduceTasks(0);
         job.setOutputKeyClass(Text.class);
-        job.setOutputValueClass(ProductBean.class);
+        job.setOutputValueClass(Text.class);
+
+        // 先把小表的文件加入缓存中
+        job.addCacheFile(new Path("/join/reduce/input/t_product").toUri());
 
         FileInputFormat.setInputPaths(job, new Path("/join/reduce/input/t_order"));
         FileOutputFormat.setOutputPath(job, new Path("/join/map/output"));
