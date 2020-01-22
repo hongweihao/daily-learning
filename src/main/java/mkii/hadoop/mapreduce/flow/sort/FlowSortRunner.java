@@ -32,17 +32,19 @@ public class FlowSortRunner {
         job.setJarByClass(FlowSortRunner.class);
 
         job.setMapperClass(FlowSortMapper.class);
+        job.setPartitionerClass(FlowSortPartitioner.class);
         job.setReducerClass(FlowSortReducer.class);
 
         // 设置reduceTask为0时，mapper不会进行排序过程。而是直接输出
-        //job.setNumReduceTasks(0);
+        // 设置reducerTask为4，会产生4个结果文件。如果文件是空的也会产生一个空的文件
+        job.setNumReduceTasks(4);
 
         job.setOutputKeyClass(FlowInfo.class);
         // NullWritable是Writable的一个特殊类，实现方法为空实现，不从数据流中读数据，也不写入数据，只充当占位符
         job.setOutputValueClass(NullWritable.class);
 
         FileInputFormat.setInputPaths(job, new Path("/flowSummary/input"));
-        FileOutputFormat.setOutputPath(job, new Path("/flowSummary/sort"));
+        FileOutputFormat.setOutputPath(job, new Path("/flowSummary/partition"));
         job.waitForCompletion(true);
     }
 }
