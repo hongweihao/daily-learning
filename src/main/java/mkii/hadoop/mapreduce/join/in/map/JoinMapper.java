@@ -34,6 +34,7 @@ public class JoinMapper extends Mapper<LongWritable, Text, Text, Text> {
             Configuration configuration = context.getConfiguration();
             FileSystem fileSystem = FileSystem.get(configuration);
             FSDataInputStream fsDataInputStream = fileSystem.open(new Path(cacheFile.getPath()));
+
             List<String> lines = IOUtils.readLines(fsDataInputStream);
             for (String line : lines) {
                 String[] fields = StringUtils.split(line, '\t');
@@ -42,6 +43,15 @@ public class JoinMapper extends Mapper<LongWritable, Text, Text, Text> {
                 }
                 map.put(fields[0], line);
             }
+
+            // 用字符流方式读取hdfs文件内容，上面的方式本质上就是这种方式
+            /*InputStreamReader inputStreamReader = new InputStreamReader(fsDataInputStream);
+            BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+            String s;
+            while ((s = bufferedReader.readLine()) != null){
+                String[] fields = s.split("\t");
+                map.put(fields[0], s);
+            }*/
         }
 
         // 从本地读取文件，加载小表到内存，hashMap
