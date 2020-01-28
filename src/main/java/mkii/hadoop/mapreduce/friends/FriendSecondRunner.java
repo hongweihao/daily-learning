@@ -16,7 +16,8 @@ import java.io.IOException;
 public class FriendSecondRunner {
     public static void main(String[] args) throws IOException, ClassNotFoundException, InterruptedException {
         Configuration conf = new Configuration();
-        conf.set("fs.defaultFS", "hdfs://localhost:9000");
+        //conf.set("fs.defaultFS", "hdfs://localhost:9000");
+        conf.set("fs.defaultFS", "hdfs://ns");
 
         Job job = Job.getInstance(conf);
         job.setJarByClass(FriendSecondRunner.class);
@@ -27,8 +28,8 @@ public class FriendSecondRunner {
         job.setOutputKeyClass(Text.class);
         job.setOutputValueClass(Text.class);
 
-        FileInputFormat.setInputPaths(job, new Path("/friend/output1"));
-        FileOutputFormat.setOutputPath(job, new Path("/friend/output2"));
+        FileInputFormat.setInputPaths(job, new Path("/friends/output1"));
+        FileOutputFormat.setOutputPath(job, new Path("/friends/output2"));
 
         job.waitForCompletion(true);
     }

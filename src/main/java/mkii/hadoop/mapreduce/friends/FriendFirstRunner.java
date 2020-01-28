@@ -34,7 +34,9 @@ import java.io.IOException;
 public class FriendFirstRunner {
     public static void main(String[] args) throws IOException, ClassNotFoundException, InterruptedException {
         Configuration conf = new Configuration();
-        conf.set("fs.defaultFS", "hdfs://localhost:9000");
+        //conf.set("fs.defaultFS", "hdfs://localhost:9000");
+        // 打包，提交到集群运行：<name>fs.defaultFS</name> <value>hdfs://ns</value>
+        conf.set("fs.defaultFS", "hdfs://ns");
 
         Job job = Job.getInstance(conf);
         job.setJarByClass(FriendFirstRunner.class);
@@ -45,8 +47,8 @@ public class FriendFirstRunner {
         job.setOutputKeyClass(Text.class);
         job.setOutputValueClass(Text.class);
 
-        FileInputFormat.setInputPaths(job, new Path("/friend/input"));
-        FileOutputFormat.setOutputPath(job, new Path("/friend/output1"));
+        FileInputFormat.setInputPaths(job, new Path("/friends/input"));
+        FileOutputFormat.setOutputPath(job, new Path("/friends/output1"));
 
         job.waitForCompletion(true);
     }
