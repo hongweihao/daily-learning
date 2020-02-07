@@ -1,6 +1,5 @@
 package mkii.io;
 
-import org.apache.commons.io.input.BOMInputStream;
 
 import java.io.*;
 import java.nio.charset.Charset;
@@ -10,14 +9,17 @@ import java.nio.charset.UnsupportedCharsetException;
 public class ChangeEncoding {
     public static void main(String[] args) throws Exception {
 
-        String inputString = readFileWithoutBom("D:\\work\\Kaiser_Shipment_Milestone_Update_Report_CSV20200117010005933_MB202001170108320001.csv");
+        //String inputString = readFileWithoutBom("D:\\work\\Kaiser_Shipment_Milestone_Update_Report_CSV20200117010005933_MB202001170108320001.csv");
+
+        String inputString = readFileWithEncoding("D:\\work\\Kaiser_Shipment_Milestone_Update_Report_CSV20200117010005933_MB202001170108320001.csv", "utf-8");
+        //inputString = removeBOM(inputString);
 
         String res = new String(inputString.getBytes(), StandardCharsets.ISO_8859_1);
 
         //LocalFileUtil.writeToFileWithEncoding("C:\\Users\\HONGKA\\Downloads\\kaiser.csv", res, "ISO-8859-1");
 
         //File file = new File("C:\\Users\\HONGKA\\Downloads\\k.csv");
-        File file = new File("D:\\work\\l.csv");
+        File file = new File("D:\\work\\3.csv");
         if (!file.exists()) {
             file.createNewFile();
         }
@@ -107,6 +109,24 @@ public class ChangeEncoding {
             }
         }
         return str;
+    }
+
+    public static String removeBOM(String str) {
+        byte[] bs = str.getBytes();
+        String ret = null;
+        if (-17 == bs[0] && -69 == bs[1] && -65 == bs[2]) {
+            ret = new String(bs, 3, bs.length - 3);
+        } else if (-17 == bs[0] && -65 == bs[1] && -67 == bs[2]) {
+            ret = new String(bs, 3, bs.length - 3);
+        } else if (-17 == bs[0] && -69 == bs[1] && 63 == bs[2]) {
+            ret = new String(bs, 3, bs.length - 3);
+        } else if (63 == bs[0] && 63 == bs[1] && 63 == bs[2]) {
+            ret = new String(bs, 3, bs.length - 3);
+        } else {
+            ret = str;
+        }
+
+        return ret;
     }
 
 }
