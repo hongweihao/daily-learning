@@ -1,6 +1,8 @@
 package mkii.io;
 
 
+import org.apache.commons.io.input.BOMInputStream;
+
 import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
