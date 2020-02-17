@@ -34,16 +34,30 @@
 
 > redis检查内存使用情况，如果已使用的内存大于max memory的值，则根据用户选择的内存淘汰策略来淘汰key。淘汰策略如下：
 
-- `noeviction`: 当内存达到阈值的时候，所有申请内存的命令会报错。（满了不淘汰，再添加就报错）
-- `allkeys-lru`:在主键空间中，
-- `allkeys-random`:
-- `volatile-lru`:
-- `volatile-random`:
-- `volatile-ttl`:
+- `no-eviction`:：当内存达到阈值的时候，所有申请内存的命令会报错。（禁止驱逐数据）
+- `allkeys-lru` ：从数据集 `server.db[i].dict` 中挑选最近最少使用的数据淘汰
+- `allkeys-random`：从数据集中随机挑选数据淘汰
+- `volatile-lru`：从已设置过期的数据集 `server.db[i].expires` 中挑选最近最少使用的数据淘汰
+- `volatile-random`：从已设置过期的数据集中任意挑选数据淘汰
+- `volatile-ttl`：从已设置过期的数据集中挑选将要过期的数据淘汰
 
 
 
+#### 5. Redis集群方案什么情况下会导致集群不可用
 
+> 主要在于是否有从节点。
+>
+> 假如集群中有三个节点A B C，如果B节点没有从节点，且B节点故障，会导致B节点分管的范围的槽不可用。
+
+
+
+#### 6. Hash槽？
+
+> Redis 集群 `redis cluster` 没有使用一致性hash，而是使用hash槽的概念。Redis集群有16385个hash槽，每个key通过CRC16校验对16384取模来决定防止的槽，集群的每个节点负责一部分hash槽。
+
+
+
+#### 7. 
 
 
 
