@@ -57,7 +57,40 @@
 
 
 
-#### 7. 
+#### 7. Redis集群会有写操作丢失吗？
+
+> Redis 满足可用性(A)和分区容错性(P)，不能满足强一致性，有可能会发生写操作丢失的情况。redis是单线程，每个请求都是事务执行的，但是多个请求之间不能保证强一致性。
+
+> C：consistency 强一致性：更新操作成功并返回客户端完成后，所有节点在同一时间的数据完全一致，所以，一致性，说的就是数据一致性
+>
+> A：availability 可用性：服务一直可用，而且是正常响应时间
+>
+> P：partition tolerance 分区容错性：分布式系统在遇到某节点或网络分区故障的时候，仍然能够对外提供满足一致性和可用性的服务。
+>
+> [分布式系统CAP理论](http://www.hollischuang.com/archives/666)
+
+![CAP](http://ww1.sinaimg.cn/large/006fJlVugy1gc1g23egumj30m80m8djd.jpg)
+
+
+
+#### 8. Redis集群之间是如何复制的？
+
+> 异步复制，复制过程中 master/slaver 节点都是非阻塞的。在从节点同步数据时，采用的是旧数据集的数据。
+
+[Redis--主从复制](https://blog.csdn.net/zhengzhaoyang122/article/details/99695747)
+
+1. 当从节点连接到主节点时，会向主节点发送`psync`命令，附带参数`runID：主节点ID`和`offset数据位置偏移`
+2. 如果主节点回复`FULLRESYNC`，那么触发全量复制
+3. 如果主节点回复`CONTINUE`，那么触发部分复制
+4. 如果主节点回复`ERR`，表示主节点不支持此命令
+
+**主从全量复制：**复制过程中，主节点使用`bgsave`命令生成 RDB 文件并发送给从节点
+
+**主从部分复制：**主节点与从节点断开连接，主节点只需要将缓冲区的部分数据同步到从节点就能够保证数据的一致性。主节点会将接收到的request数据写入“复制积压缓冲区”，默认1M，可通过`repl-backlog-size`配置
+
+
+
+#### 9. Redis中的管道（pipeline）有什么作用？
 
 
 
