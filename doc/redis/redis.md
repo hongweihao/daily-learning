@@ -92,5 +92,16 @@
 
 #### 9. Redis中的管道（pipeline）有什么作用？
 
+> 将多个读写请求合并在一起提交给客户端出来，一并返回结果
+>
+> 优势是减少了单个请求在网络中耗费的时间，每个请求都需要通过网络发送并通过网络返回结果，管道就将这些没有联系的请求打包通过网络发送一次，并通过网络返回一个结果（这个结果包含多个请求的结果）
 
 
+
+#### 10. Redis中的事务
+
+[REDIS事务处理](http://www.redis.cn/topics/transactions.html)
+
+[Redis事务介绍](https://blog.csdn.net/hechurui/article/details/49508749)
+
+> 
