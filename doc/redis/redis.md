@@ -159,10 +159,44 @@
 
 
 
-#### 11. 为什么要做分区？分区方案有哪些？
+#### 11. 为什么要做分区？分区方案有哪些？集群Cluster
 > 分区可以让 redis 管理更大的内存，redis 将使用所有机器的内存。分区使redis的计算能力得到成倍提升，带宽也会随着计算机和网卡的增加而成倍增长。
 >
 > 1. 客户端分区：在客户端就已经决定数据会被存储到哪个节点或从哪个节点读取。大多数客户端已经实现了客户端分区。
 > 2. 代理分区：客户端将请求发给代理，然后代理决定去哪个节点写数据/读数据。代理根据分区规则决定请求的节点，再根据此节点响应结果返回给客户端。
 > 3. 查询路由：客户端随机请求任意一个节点，然后由redis将请求转发给正确的节点。
 
+#### 12. Redis中的sentinel（哨兵）模式
+
+> Sentinel：是redis的高可用实现方案。sentinel是一个可以管理多个redis实例的工具，它可以实现对redis的**监控，通知，自动故障转移 **。
+
+>  **监控： **sentinel 会不断地检查 (`PING`) 着master节点和slaver节点的状态
+
+> **通知： **
+
+> **自动故障转移： **master节点故障时，sentinel开始一次自动的故障转移操作，在slaver中选择一个成为新的master，并更新其他的slaver节点的master。原master节点会被标记成slaver（更新配置文件`redis.conf`）
+
+![哨兵模式](http://ww1.sinaimg.cn/large/006fJlVugy1gc8p6ux0dhj30da0fa74e.jpg)
+
+#### 13. Redis 线程模型
+
+> redis基于Reactor开发了网络事件处理器，也就是文件事件处理器。它由4各部分组成：
+>
+> - 多个socket
+> - I/O多路复用程序
+> - 文件事件分派器（队列，单线程）
+> - 事件处理器（连接应答处理器，命令请求处理器，命令回复处理器）
+
+![redis线程模型](http://ww1.sinaimg.cn/large/006fJlVugy1gc8qt3tgwtj30xc0djt94.jpg)
+
+[redis线程模型](https://blog.csdn.net/zhengzhaoyang122/article/details/100848363)
+
+**通信过程 **
+
+![通信过程](http://ww1.sinaimg.cn/large/006fJlVugy1gc8qwfjmqyj30mv0bm412.jpg)
+
+
+
+#### 13. Redis分布式锁
+
+> 
