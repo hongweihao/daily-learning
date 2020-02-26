@@ -199,4 +199,28 @@
 
 #### 13. Redis分布式锁
 
-> 
+[分布式锁用Redis还是Zookeeper](https://zhuanlan.zhihu.com/p/73807097)
+
+##### 13.1 `setnx + expire`命令
+
+> `setnx lock unique_value`  // set if not exists
+>
+> `expire lock 10`  // 设置超时时间
+>
+> 缺点：`setn`x和`expire` 之间非原子性，有可能在`setnx`之后机器故障从而死锁
+
+##### 13.2 Lua脚本 / `set lock unique_value NX PX 30000`
+
+> 将上面的两步在一步执行，避免命令非原子性执行
+>
+> 缺点：在高可用、集群环境中，如果master down机，slave接管可能会导致**<u>锁丢失</u>**
+
+##### 13.3 RedLock
+
+> 在过半数节点创建锁
+
+##### 13.4 Redission
+
+> 企业级开源redis-client，所有命令都是Lua脚本原子性执行
+>
+> WatchDog可以解决长时间阻塞问题：它会在没到期前重新设置过期时间，如果业务执行完成或者节点down机就会释放锁
