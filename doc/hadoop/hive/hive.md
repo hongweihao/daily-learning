@@ -20,7 +20,7 @@ DROP DATABASE my_db;
 
 ```sql
 --- creata a table
-CREATE TABLE my_table(id int, name String)
+CREATE [EXTERNAL] TABLE my_table(id int, name String)
 COMMENT 'my_table details'
 ROW FORMAT DELIMITED
 FIELDS TERMINATED BY '\t'
@@ -43,4 +43,6 @@ ALTER TABLE my_table
 DROP TABLE my_tab;
 
 ```
+
+
 
