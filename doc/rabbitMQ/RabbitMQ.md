@@ -39,7 +39,7 @@
 
 ### 5. vhost 的作用
 
-[RabbitMQ概念篇 vhost](https://www.cnblogs.com/hongjh/p/7644718.html)]
+[RabbitMQ概念篇 vhost](https://www.cnblogs.com/hongjh/p/7644718.html)
 
 > 最主要的应用是对应的用户拥有独立的权限系统。例如一个broker中有两个vhost，user1拥有vhost1的权限，user2拥有vhost2的权限。
 >
