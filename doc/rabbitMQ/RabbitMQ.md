@@ -4,7 +4,7 @@
 
 > 基于AMQP协议，使用erlang编写的企业级消息队列。
 
-![RabbitMQ架构图](./image/RabbitMQ.png)
+![RabbitMQ架构图](http://ww1.sinaimg.cn/large/006fJlVugy1gcfn0emv2aj30ou0d3q36.jpg)
 
 
 
