@@ -1,14 +1,13 @@
 package mkii.datastru;
 
-import java.util.Iterator;
-
 /**
  * 顺序表实现
  *
  */
-public class SeqList implements Iterator {
-
+public class SeqList {
+    // 默认数组的大小
     private final static int DEFAULT_SIZE = 2;
+    // 每次扩容增加的大小
     private final static int FACTORY = 2;
 
     private static int length;
@@ -34,12 +33,21 @@ public class SeqList implements Iterator {
         elems = new int[DEFAULT_SIZE];
     }
 
+    /**
+     * 判断SeqList是否为空
+     *
+     * @return
+     */
     public boolean emptySeqList(){
         return (elems == null || length == 0 || size == 0);
     }
 
+    /**
+     * 扩容方法
+     *
+     * @param a 原数组
+     */
     private void expansion(int[] a){
-
         int[] newElems = new int[size + FACTORY];
         int i;
         for(i = 0; i < length; i++){
@@ -49,8 +57,12 @@ public class SeqList implements Iterator {
         size += FACTORY;
     }
 
+    /**
+     * 在SeqList的尾部添加元素
+     *
+     * @param val 被添加元素
+     */
     public void addElem(int val){
-
         if (length >= size){
             System.out.println("容量不足,扩容！");
             expansion(elems);
@@ -61,8 +73,14 @@ public class SeqList implements Iterator {
         System.out.println("添加元素成功");
     }
 
+    /**
+     * 根据元素的值删除一个元素。
+     * 相当于判断SeqList中是否存在val
+     * 如果存在1个则删除，如果存在多个则删除第一个
+     *
+     * @param val 被删除元素的值
+     */
     public void deleteElem(int val){
-
         int i = 0;
         int index = -1;
 
@@ -89,6 +107,12 @@ public class SeqList implements Iterator {
         System.out.println("删除元素成功");
     }
 
+    /**
+     * 根据索引，更新该位置的元素值
+     *
+     * @param index 索引
+     * @param val 新值
+     */
     public void updateSeqList(int index, int val){
 
         if(index >= size || index >= length || index < 0){
@@ -100,6 +124,13 @@ public class SeqList implements Iterator {
         System.out.println("更新元素成功");
     }
 
+    /**
+     * 根据索引获取该位置的元素值
+     *
+     * @param index 索引
+     * @return
+     * @throws Exception
+     */
     public int readElem(int index) throws Exception{
 
         if(index >= size || index >= length || index < 0){
@@ -110,31 +141,15 @@ public class SeqList implements Iterator {
         return elems[index];
     }
 
+    /**
+     * 回收SeqList，其实 JVM 会做回收
+     *
+     */
     public void destroySeqList(){
-
         if (!emptySeqList()){
             elems = null;
             length = 0;
             size = 0;
         }
-    }
-
-
-    @Override
-    public boolean hasNext() {
-
-
-
-        return false;
-    }
-
-    @Override
-    public Object next() {
-        return null;
-    }
-
-    @Override
-    public void remove() {
-
     }
 }
