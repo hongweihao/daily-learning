@@ -1,13 +1,13 @@
 #### 1.概述
-> 动态增长和缩减的索引序列，基于数组实现的`List`  
-> 线程不安全，可以存放`null`  
-> 数据结构：数组（查询快，插入删除慢）  
+> 动态增长和缩减的索引序列，基于数组实现的`List`
+> 线程不安全，可以存放`null`
+> 数据结构：数组（查询快，插入删除慢）
 > 实现了`RandomAccess`，遍历时推荐使用for循环
 
-> `RandomAccess`一个标记接口(mark interface：)，表示是否支持快速随机访问，即能否通过index直接定位到元素
+> `RandomAccess`一个标记接口 `mark interface`，表示是否支持快速随机访问，即能否通过 index 直接定位到元素
 
 关系图：
-```
+```java
 public class ArrayList<E> extends AbstractList<E>
         implements List<E>, RandomAccess, Cloneable, java.io.Serializable
 ```
@@ -16,7 +16,7 @@ public class ArrayList<E> extends AbstractList<E>
 
 #### 2.源码
 ##### 常用属性：
-```
+```java
 // 默认容量
 int DEFAULT_CAPACITY = 10;
 
@@ -31,7 +31,7 @@ int MAX_ARRAY_SIZE=Integer.MAX_VALUE - 8;
 ```
 
 ##### 常用构造方法：
-```
+```Java
 // 指定容量
 public ArrayList(int initialCapacity);
 
@@ -40,7 +40,7 @@ public ArrayList();
 ```
 
 ##### 核心方法：
-```
+```Java
 /**
  * 在数组尾部添加一个元素
  */
@@ -52,7 +52,7 @@ public boolean add(E e) {
 }
 ```
 
-```
+```java
 /**
  * 确保数组的容量
  */
@@ -67,7 +67,7 @@ private void ensureCapacityInternal(int minCapacity) {
 }
 ```
 
-```
+```Java
 /**
  * 确保实际容量
  */
@@ -83,7 +83,7 @@ private void ensureExplicitCapacity(int minCapacity) {
 }
 ```
 
-```
+```java
 /**
  * 扩容
  */
@@ -104,7 +104,7 @@ private void grow(int minCapacity) {
 }
 ```
 
-```
+```Java
 /**
  * 给出最大的容量
  * MAX_ARRAY_SIZE应该是为了防止溢出做的保险
@@ -117,11 +117,9 @@ private static int hugeCapacity(int minCapacity) {
         MAX_ARRAY_SIZE;      //MAX_ARRAY_SIZE：2147483639
 }
 ```
-> 比较难理解的方法就上面这些，最核心的是grow()，其他的虽然也很重要，但理解起来相对简单些，这里就不展开细说了。  
+> 比较难理解的方法就上面这些，最核心的是 `grow()`，其他的虽然也很重要，但理解起来相对简单些，这里就不展开细说了。  
 
-> 初始化时，若不指定容量。则会调用grow()方法初始化elementData。
+> 初始化时，若不指定容量。则会调用 `grow()` 方法初始化 `elementData`。
 
 ### 参考
 [Java集合源码分析（一）ArrayList](https://www.cnblogs.com/zhangyinhua/p/7687377.html)
-
-可以看一下我用Java写的[线性表的顺序实现](https://gitee.com/mkii/studyTree/blob/master/code/src/main/java/com/mkii/code/data/SeqList.java)，原理差不多
