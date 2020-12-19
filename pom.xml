@@ -20,7 +20,14 @@
   </properties>
 
   <dependencies>
-    <!-- netty io -->
+      <!-- https://mvnrepository.com/artifact/org.springframework/spring-webmvc -->
+      <dependency>
+          <groupId>org.springframework</groupId>
+          <artifactId>spring-webmvc</artifactId>
+          <version>5.2.12.RELEASE</version>
+      </dependency>
+
+      <!-- netty io -->
     <dependency>
       <groupId>io.netty</groupId>
       <artifactId>netty-all</artifactId>
