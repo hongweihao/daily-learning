@@ -11,7 +11,7 @@ import java.util.Map;
 @RequestMapping("method/get")
 public class Get {
     // 定义同名变量接收参数
-    @GetMapping("user1")
+    @GetMapping("test1")
     public Map<String, Object> userTest1(Integer id, String user_name) {
         Map<String, Object> map = new HashMap<>();
 
@@ -28,7 +28,7 @@ public class Get {
     }
 
     // 使用@RequestParam指定变量
-    @GetMapping("user2")
+    @GetMapping("test2")
     public Map<String, Object> userTest2(@RequestParam("id") Integer id, @RequestParam("user_name") String userName) {
         Map<String, Object> map = new HashMap<>();
 
@@ -45,7 +45,7 @@ public class Get {
     }
 
     // 通过HttpServletRequest获取url参数
-    @GetMapping("user3")
+    @GetMapping("test3")
     public Map<String, Object> userTest3(HttpServletRequest request) {
         Map<String, Object> map = new HashMap<>();
 
@@ -57,7 +57,7 @@ public class Get {
     }
 
     // 通过@PathVariable获取url参数
-    @GetMapping("user4/{id}/{user_name}")
+    @GetMapping("test4/{id}/{user_name}")
     public Map<String, Object> userTest4(@PathVariable("id") Integer id, @PathVariable("user_name") String userName) {
         Map<String, Object> map = new HashMap<>();
 

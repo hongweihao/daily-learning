@@ -35,7 +35,7 @@ public class Header {
     }
 
     // 使用@RequestHeader注解获取全部header
-    @RequestMapping("get2")
+    @RequestMapping("get3")
     public Map<String, String> headerTest3(@RequestHeader Map<String, String> headers){
         return headers;
     }
