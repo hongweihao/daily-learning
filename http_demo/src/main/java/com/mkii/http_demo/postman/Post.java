@@ -1,12 +1,15 @@
 package com.mkii.http_demo.postman;
 
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.apache.commons.io.IOUtils;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
+import javax.servlet.ServletInputStream;
+import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.*;
 import java.util.*;
 
 @RestController
@@ -38,5 +41,53 @@ public class Post {
         result.put("file2", file2.getOriginalFilename());
 
         return result;
+    }
+
+    // 使用@RequestBody注解获取body的内容
+    @PostMapping("/raw/text1")
+    public String postTest3(@RequestBody String body) {
+        return body;
+    }
+
+    // 使用@RequestBody注解获取body的内容
+    @PostMapping("/raw/text2")
+    public String postTest4(HttpServletRequest request) throws IOException {
+        ServletInputStream inputStream = request.getInputStream();
+        // 使用了common-io库
+        return IOUtils.toString(inputStream, StandardCharsets.UTF_8);
+    }
+
+    // 使用@RequestBody注解获取body的内容并自动解析
+    @PostMapping("/raw/json1")
+    public JsonBean postTest5(@RequestBody JsonBean jsonBean) {
+        return jsonBean;
+    }
+
+    // 使用@RequestBody注解获取body的内容
+    @PostMapping("/raw/json2")
+    public String postTest6(HttpServletRequest request) throws IOException {
+        ServletInputStream inputStream = request.getInputStream();
+        // 使用了common-io库
+        return IOUtils.toString(inputStream, StandardCharsets.UTF_8);
+    }
+
+    @PostMapping("/raw/binary")
+    public String postTest7(HttpServletRequest request) throws IOException {
+        ServletInputStream inputStream = request.getInputStream();
+        Path path = Paths.get("binary");
+        // binary文件，如果文件存在则覆盖
+        Files.copy(inputStream, path, StandardCopyOption.REPLACE_EXISTING);
+        return "written to " + path.toFile().getName();
+    }
+}
+
+class JsonBean{
+    private Long id;
+    private String name;
+    public Long getId() {
+        return this.id;
+    }
+    public String getName() {
+        return this.name;
     }
 }
