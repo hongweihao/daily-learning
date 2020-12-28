@@ -4,3 +4,4 @@
 *.cmd
 *mvnw
 /http_demo/.mvn
+/go_demo/.idea/
