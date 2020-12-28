@@ -1,24 +1,20 @@
 package main
 
-import (
-	"fmt"
-	"go_demo/src/excel"
-)
-
 func main() {
-	/*sendEmail := email.NewSendEmail("Karl", "Karl1234", "smtp.exmail.qq.com", "karl.hong@xinda.im", 465)
-	err := sendEmail.SendEmail("subject", "message", "1245215272@qq.com")
+	/*sendEmail := email.NewSendEmail("Karl", "****", "smtp.exmail.qq.com", "from@xxx.com", 465)
+	err := sendEmail.SendEmail("subject", "message", "to@xxx.com")
 	if err != nil {
 		fmt.Println("failed, ", err)
 		return
 	}*/
 
-	file := excel.ExportExcel()
+	/*file := excel.ExportExcel()
 	err := file.Save("d:/test.xls")
 	if err != nil {
 		fmt.Println("failed")
 		return
 	}
 
-	fmt.Println("successful")
+	fmt.Println("successful")*/
+	arraySlice()
 }
