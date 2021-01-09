@@ -1,4 +1,4 @@
-package main
+package data
 
 import "fmt"
 
@@ -48,4 +48,17 @@ func arraySlice() {
 	for index, value := range slice2 {
 		fmt.Println("slice2 range -> index: ", index, "value: ", value)
 	}
+
+	// 删除元素，切片没有提供删除元素的方法，可以使用拼接的方式。删除下标为1的元素
+	slice3 := append(slice2[:1], slice2[2:]...)
+	fmt.Println("slice3 -> len: ", len(slice3), "cap", cap(slice3), "value: ", slice3)
+
+	// 重置切片
+	slice4 := slice3[0:0]
+	fmt.Println("slice4 -> len: ", len(slice4), "cap", cap(slice4), "value: ", slice4)
+
+	// 复制切片
+	slice5 := make([]int, 3)
+	copy(slice5, []int{1, 3, 5})
+	fmt.Println("slice5 -> len: ", len(slice5), "cap", cap(slice5), "value: ", slice5)
 }
