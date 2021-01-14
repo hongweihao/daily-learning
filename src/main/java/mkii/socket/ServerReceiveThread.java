@@ -1,7 +1,7 @@
 package mkii.socket;
 
 import lombok.SneakyThrows;
-import mkii.rpc.entity.Request;
+import mkii.socket.entity.Request;
 
 import java.io.*;
 import java.net.Socket;

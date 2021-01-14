@@ -1,4 +1,4 @@
-package mkii.rpc.entity;
+package mkii.socket.entity;
 
 public class Response {
     private Object result;

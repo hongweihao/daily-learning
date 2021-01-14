@@ -1,8 +1,8 @@
 package mkii.socket.nio;
 
 import lombok.SneakyThrows;
-import mkii.rpc.entity.Request;
 import mkii.socket.Handler;
+import mkii.socket.entity.Request;
 
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;

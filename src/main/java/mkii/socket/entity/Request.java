@@ -1,4 +1,4 @@
-package mkii.rpc.entity;
+package mkii.socket.entity;
 
 import java.io.Serializable;
 

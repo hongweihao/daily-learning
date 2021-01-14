@@ -1,6 +1,7 @@
 package mkii.socket.nio;
 
-import mkii.rpc.entity.Request;
+
+import mkii.socket.entity.Request;
 
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;

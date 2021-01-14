@@ -1,6 +1,5 @@
 package mkii.socket;
 
-import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 
@@ -9,7 +8,6 @@ public class Server  {
         //创建一个服务器端socket，指定绑定的端口号，并监听此端口
         ServerSocket serverSocket = new ServerSocket(8888);
 
-        OutputStream outputStream = null;
         Socket socket = null;
 
         while (true) {

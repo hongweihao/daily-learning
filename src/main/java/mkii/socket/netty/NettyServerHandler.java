@@ -3,8 +3,8 @@ package mkii.socket.netty;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
-import mkii.rpc.entity.Request;
 import mkii.socket.Handler;
+import mkii.socket.entity.Request;
 import mkii.socket.nio.ConvertUtil;
 
 public class NettyServerHandler extends ChannelInboundHandlerAdapter {
@@ -18,7 +18,7 @@ public class NettyServerHandler extends ChannelInboundHandlerAdapter {
         Object o = handler.serverHandler((Request) msg);
 
         // 编码过程，object需要转换成netty支持的ByteBuf类型
-        ByteBuf byteBuf = ConvertUtil.Object2ByteBuf(o);
+        ByteBuf byteBuf = ConvertUtil.object2ByteBuf(o);
         // 回写到client
         ctx.write(byteBuf);
     }

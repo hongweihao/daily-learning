@@ -6,95 +6,69 @@ import io.netty.buffer.Unpooled;
 import java.io.*;
 import java.nio.ByteBuffer;
 
+/**
+ * 自定义的序列化方式
+ */
 public class ConvertUtil {
+    private ConvertUtil() {
+    }
+
     // 将object转换为byte[]
     public static byte[] object2Bytes(Object object) {
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        ObjectOutputStream objectOutputStream = null;
-        try {
-            objectOutputStream = new ObjectOutputStream(byteArrayOutputStream);
-            objectOutputStream.writeObject(object);
-            return byteArrayOutputStream.toByteArray();
+        try (ByteArrayOutputStream baos = new ByteArrayOutputStream();
+             ObjectOutputStream oos = new ObjectOutputStream(baos)) {
+            oos.writeObject(object);
+            return baos.toByteArray();
         } catch (IOException e) {
             e.printStackTrace();
-            return null;
-        } finally {
-            try {
-                objectOutputStream.close();
-                byteArrayOutputStream.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            return new byte[]{};
         }
     }
 
     // 将byte[]转换为object
     public static Object bytes2Object(byte[] bytes) {
-        ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(bytes);
-        ObjectInputStream objectInputStream = null;
-        try {
-            objectInputStream = new ObjectInputStream(byteArrayInputStream);
-            return objectInputStream.readObject();
+        try (ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
+             ObjectInputStream ois = new ObjectInputStream(bais)) {
+            return ois.readObject();
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
             return null;
-        } finally {
-            try {
-                byteArrayInputStream.close();
-                objectInputStream.close();
-            } catch (IOException e) {
-            }
         }
     }
+
     // nio
-    public static ByteBuffer Object2ByteBuffer(Object object){
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        ObjectOutputStream objectOutputStream = null;
-        try {
-            objectOutputStream = new ObjectOutputStream(byteArrayOutputStream);
-            objectOutputStream.writeObject(object);
-            byte[] bytes = byteArrayOutputStream.toByteArray();
+    public static ByteBuffer Object2ByteBuffer(Object object) {
+        try (ByteArrayOutputStream baos = new ByteArrayOutputStream();
+             ObjectOutputStream ooos = new ObjectOutputStream(baos)) {
+            ooos.writeObject(object);
+            byte[] bytes = baos.toByteArray();
             return ByteBuffer.wrap(bytes);
         } catch (IOException e) {
             e.printStackTrace();
             return null;
-        } finally {
-            try {
-                objectOutputStream.close();
-                byteArrayOutputStream.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
         }
     }
 
-    public static Object byteBuffer2Object(ByteBuffer byteBuffer){
+    public static Object byteBuffer2Object(ByteBuffer byteBuffer) {
         byte[] bytes = byteBuffer.array();
-        ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(bytes);
-        ObjectInputStream objectInputStream = null;
-        try {
-            objectInputStream = new ObjectInputStream(byteArrayInputStream);
-            return objectInputStream.readObject();
+
+        try (ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
+             ObjectInputStream ois = new ObjectInputStream(bais)) {
+            return ois.readObject();
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
             return null;
-        } finally {
-            try {
-                byteArrayInputStream.close();
-                objectInputStream.close();
-            } catch (IOException e) {
-            }
         }
     }
 
     // netty
-    public static Object ByteBuf2Object(ByteBuf byteBuf){
+    public static Object byteBuf2Object(ByteBuf byteBuf) {
         byte[] bytes = new byte[byteBuf.readableBytes()];
         byteBuf.readBytes(bytes);
         return bytes2Object(bytes);
     }
 
-    public static ByteBuf Object2ByteBuf(Object o){
+    public static ByteBuf object2ByteBuf(Object o) {
         byte[] bytes = object2Bytes(o);
         return Unpooled.copiedBuffer(bytes);
     }

@@ -3,7 +3,7 @@ package mkii.socket.netty;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
-import mkii.rpc.entity.Request;
+import mkii.socket.entity.Request;
 import mkii.socket.nio.ConvertUtil;
 
 public class NettyClientHandler extends ChannelInboundHandlerAdapter {
@@ -25,7 +25,7 @@ public class NettyClientHandler extends ChannelInboundHandlerAdapter {
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         System.out.println("client reading feedback content...");
         ByteBuf byteBuf = (ByteBuf) msg;
-        String s = (String) ConvertUtil.ByteBuf2Object(byteBuf);
+        String s = (String) ConvertUtil.byteBuf2Object(byteBuf);
         System.out.println(s);
     }
 

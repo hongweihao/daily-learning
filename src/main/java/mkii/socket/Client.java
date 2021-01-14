@@ -1,7 +1,7 @@
 package mkii.socket;
 
 
-import mkii.rpc.entity.Request;
+import mkii.socket.entity.Request;
 
 import java.io.InputStream;
 import java.io.ObjectInputStream;

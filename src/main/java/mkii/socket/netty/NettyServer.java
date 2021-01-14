@@ -31,7 +31,7 @@ public class NettyServer extends Thread {
                             channel.pipeline().addLast(new ByteToMessageDecoder() {
                                 @Override
                                 protected void decode(ChannelHandlerContext channelHandlerContext, ByteBuf byteBuf, List<Object> list) throws Exception {
-                                    Object o = ConvertUtil.ByteBuf2Object(byteBuf);
+                                    Object o = ConvertUtil.byteBuf2Object(byteBuf);
                                     list.add(o);
                                 }
                             });
