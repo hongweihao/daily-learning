@@ -202,6 +202,96 @@ demo.go的内容如下：（不可引用internal的代码）
 
 ### 4. 程序实体
 
+#### 4.1 Go变量声明的方式
+
+
+
+#### 4.2 Go类型推断的好处
+
+> 小重构
+
+
+
+#### 4.3 变量重声明
+
+```go
+var err error
+n, err := io.WriteString(os.Stdout, "Hello, everyone!\n")
+```
+
+
+
+#### 4.4 一个变量与其外层变量重名会发生什么
+
+内层屏蔽外层
+
+```go
+package main
+
+import "fmt"
+
+// 变量重声明
+var block = "package"
+func main()  {
+	var block = "main"
+	{
+		var block = "inner"
+		fmt.Println(block)
+	}
+
+	fmt.Println(block)
+}
+
+```
+
+> inner
+>
+> main
+
+
+
+#### 4.5 如何判断一个变量的类型
+
+使用类型断言表达式
+
+```go
+func main() {
+	slice := make([]int, 0)
+	slice = append(slice, 1)
+
+	value, ok := interface{}(slice).([]int)
+	fmt.Println("value", value, "ok", ok)
+}
+```
+
+> value [1] ok true
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
