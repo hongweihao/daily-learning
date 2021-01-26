@@ -324,19 +324,81 @@ type Mystring string
 
 ### 1. 数组与切片
 
+#### 1.1 正确估算切片的长度和容量
 
+当前容量小于1024时，扩容为2倍
+
+当前容量大于1024时，扩容为1.25 倍（递减但一定会保证容量足够）
+
+> 注意：扩容后的容量可能刚好是2/1.25倍也可能不是，因为存在一个内存对齐的步骤
+
+
+
+#### 1.2 切片的底层数组什么时候会被替换
+
+切片的底层数组不会被替换。使用append函数扩容时，实际上返回的是一个新的切片对象
+
+> 注意：当拿到切片的指针时，应该避免去修改底层数组的元素，可能有多个切片引用此数组
 
 
 
 ### 2. container包的容器
 
+`list`：双向链表
+
+`heap`：堆
+
+`ring`：循环链表，环
 
 
 
+#### 2.1 能否把自己生成的Element对象传给链表
+
+不能，为了避免链表的结构遭到外界破坏，实际去尝试就会发现：自己生成 `Element` 对象，实际上就是构建一个链表了
+
+**list的用法：**
+
+```go
+package container
+
+import (
+   "container/list"
+   "fmt"
+   "testing"
+)
+
+func TestList(t *testing.T) {
+   // 初始化一个list对象
+   l := list.New()
+
+   // 在表头插入元素
+   l.PushFront(1)
+   
+   // 表尾插入元素
+   e3 := l.PushBack(3)
+   l.PushBack(4)
+
+   // 在e3前插入元素
+   e2 := l.InsertBefore(2, e3)
+
+   // 在表头插入一个链表
+   l.PushFrontList(l)
+
+   // 将e2移动到e3后面
+   l.MoveAfter(e2, e3)
+
+   // 遍历链表元素
+   for e := l.Front(); e != nil; e = e.Next(){
+      fmt.Println(e.Value)
+   }
+}
+```
 
 
 
+#### 2.2 如何做到开箱即用
 
+延迟初始化：在 `PushFrontList`，`PushBackList`，`PushFront`，`PushBack`都调用了 `lazyInit` 方法，这个方法用于延迟初始化
 
 
 
