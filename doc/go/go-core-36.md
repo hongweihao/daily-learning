@@ -254,6 +254,8 @@ func main()  {
 
 使用类型断言表达式
 
+![image-20210126121159505](https://gitee.com/mkii/md-image/raw/master/image-20210126121159505.png)
+
 ```go
 func main() {
 	slice := make([]int, 0)
@@ -268,41 +270,71 @@ func main() {
 
 
 
+#### 4.6 类型转换过程中需要注意什么
+
+- 精度问题
+
+```go
+func main() {
+	var srcInt = int16(-255)
+	fmt.Println(srcInt) // -255
+
+	dstInt := int8(srcInt)
+	fmt.Println(dstInt) // 1
+}
+```
+
+- 无效代码点
+
+```go
+fmt.Println(string(-1)) // �
+```
+
+- `string` 与 `[]byte` 和 `[]rune` 之间的转换
+
+`string -> []byte`: 拆分成字节，ASCII
+
+`string -> []rune`： 拆分成 Unicode
 
 
 
+#### 4.7 别名类型与潜在类型
+
+```go
+// 声明别名类型
+type Mystring = string // Mystring是string的别名
+```
 
 
 
+```go
+// 类型再定义
+type Mystring string
+```
 
 
 
+潜在类型：某个类型的本质是什么类型。例如，Mystring的潜在类型是string
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+![image-20210126125130022](https://gitee.com/mkii/md-image/raw/master/image-20210126125130022.png)
 
 
 
 ## 二、Go 语言进阶
+
+### 1. 数组与切片
+
+
+
+
+
+### 2. container包的容器
+
+
+
+
+
+
 
 
 

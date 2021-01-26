@@ -1,7 +1,5 @@
 package main
 
-import "fmt"
-
 //// 变量重声明
 //var block = "package"
 //func main()  {
@@ -14,10 +12,10 @@ import "fmt"
 //	fmt.Println(block)
 //}
 
-func main() {
-	slice := make([]int, 0)
-	slice = append(slice, 1)
-
-	value, ok := interface{}(slice).([]int)
-	fmt.Println("value", value, "ok", ok)
-}
+//func main() {
+//	slice := make([]int, 0)
+//	slice = append(slice, 1)
+//
+//	value, ok := interface{}(slice).([]int)
+//	fmt.Println("value", value, "ok", ok)
+//}
