@@ -402,20 +402,273 @@ func TestList(t *testing.T) {
 
 
 
+### 3. 字典的操作和约束
+
+> 底层是一个 `hash` 表的特定实现
+
+
+
+#### 3.1 key不能是哪些类型
+
+key不能是**函数，字典和切片**
+
+**key的要求有2个：**
+
+- 可hash，由hash函数决定
+- 可判等，Go语言中使用==运算符判等
+
+第二是可判等，Golang中使用==运算符判等
+
+> Java 中使用equals方法判等，理论上所以的类型都可作为key
+
+
+
+##### 3.1.1 应该优先考虑哪些类型作为key
+
+> 求hash和判等的速度越快，对应的类型就越适合做key
+
+求hash的速度与key的“宽度”有关，宽度指的是某个类型单个值占用的字节数。例如，bool，int8，unit单个值占用1个字节，字符串占用的字节数不定。
+
+优先使用数值类型和指针类型，如果使用字符串类型应该控制字符串的长度
+
+##### 3.1.2 map的值为nil时，可是否可以操作
+
+除了条件key-value之外，其他的操作都可以
+
+
+
+### 4. 通道
+
+> 通道是一个并发安全的数据结构，相当于一个先进先出的队列，底层是环形链表
+
+
+
+#### 4.1 通道的发送/接收都有哪些基本特性
+
+- 同一个通道，发送操作之间互斥，接收操作之间也互斥
+- 发送/接收具有原子性。例如，发送包含2个过程：复制数据，数据副本放入通道，这2个步骤具有原子性
+- 发送/接收操作在完成之前会被阻塞
+
+
+
+#### 4.2 发送/接收什么时候会被长时间阻塞
+
+- 缓冲通道，当通道数据满时，发送操作会被阻塞；当通道为空时，接收操作会被阻塞
+- 非缓冲通道，当发送和接收2个操作其中一个没有就绪时，另一个会被阻塞
+- 对一个值为nil的通道进行发送/接收操作时，都会被阻塞
+
+
+
+#### 4.3 发送/接收什么时候会引发 panic
+
+- 给一个已经关闭的通道发送数据
+- 关闭一个已经关闭的通道
+
+> 注意：
+>
+> 接收操作可以通过第2个返回值判断通道是否关闭，所以一般应该由发送方关闭通道。
+>
+> 接收方通过第2个返回值判断通道是否关闭有延迟：通道中存在数据实际上已经被关闭，这时候第2个返回值为true，因为读取到了数据
+
+
+
+#### 4.4 单向通道有什么应用价值
+
+约束其他代码的行为。例如，一个通道其中一个线程只允许接收，可以设置为只读通道 `<-chan int`
+
+
+
+#### 4.5 select 语句与通道如何联用
+
+```go
+ch1 := make(chan int, 1)
+ch2 := make(chan int, 1)
+ch1 <- 666
+
+select {
+    case <-ch1:
+    	fmt.Println("get vlaue from ch1")
+    case <-ch2:
+	    fmt.Println("get value from ch2")
+	default:
+    	fmt.Println("get nothing")
+}
+```
+
+**注意点：**
+
+- select语句中不存在default语句，其他的通道为空时，select会阻塞
+- select语句中存在default语句时，select不会阻塞
+- 可以使用返回的第2个值判断通道是否关闭来避免长时间阻塞
+- **与for语句结合使用时，break语句只会跳出select不会跳出for**
+
+
+
+#### 4.6 select语句的分支选择规则
+
+```go
+package main
+
+import "fmt"
+
+var channels = [3]chan int{
+	nil,
+	make(chan int),
+	nil,
+}
+
+var numbers = []int{1, 2, 3}
+
+func main() {
+	select {
+	case getChan(0) <- getNumber(0):
+		fmt.Println("The first candidate case is selected.")
+	case getChan(1) <- getNumber(1):
+		fmt.Println("The second candidate case is selected.")
+	case getChan(2) <- getNumber(2):
+		fmt.Println("The third candidate case is selected")
+	default:
+		fmt.Println("No candidate case is selected!")
+	}
+}
+
+func getNumber(i int) int {
+	fmt.Printf("numbers[%d]\n", i)
+	return numbers[i]
+}
+
+func getChan(i int) chan int {
+	fmt.Printf("channels[%d]\n", i)
+	return channels[i]
+}
+
+```
+
+> channels[0]
+> numbers[0]
+> channels[1]
+> numbers[1]
+> channels[2]
+> numbers[2]
+> No candidate case is selected!
+
+### 5. 函数
+
+#### 5.1 怎样编写高阶函数
+
+**高阶函数的特性：**
+
+- 可以接收函数类型的参数
+- 可以返回函数类型的结果
+
+
+
+#### 5.2 如何实现闭包
+
+> 在一个函数中存在对自由变量的引用，这个自由变量参与到该函数的逻辑中来
+>
+> 自由变量：外部定义的变量，不由函数内部控制，完全由外部控制
+
+
+
+#### 5.3 传入的参数值后来怎样了
+
+在 Go 中，向函数传递参数会先把此参数进行复制得到一个副本值，函数中会操作此副本。应该注意的是，复制时如果参数为值类型，那么副本会复制所以的内容。例如，参数为数组时，副本应该复制该数组与该数组的全部值。复制时如果参数为引用类型，那么副本只会复制此引用，底层的数据并不会复制。例如，参数为切片时，副本比复制了切片的引用，底层的数据与原切片公用。
+
+> Go 没有 Java的深拷贝和浅拷贝概念，复制的方式取决于类型
+
+
+
+```go
+package main
+
+import (
+	"fmt"
+	"testing"
+    "errors"
+)
+
+// 编写高阶函数
+// 高阶函数的特性：
+// 1. 可以接收函数类型的参数
+// 2. 可以返回函数类型的结果
+func TestFun(t *testing.T) {
+	result, err := compute(1, 2, add)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	fmt.Println("result: ", result)
+}
+
+// 实现闭包
+func TestCloseFun(t *testing.T) {
+	compute := genComputeFun(add)
+	result, err := compute(4, 5)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	fmt.Println("result:", result)
+}
+
+// 测试传入的参数值后来怎么样了
+func TestParameters(t *testing.T) {
+	array := [10]int{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}
+	slice := array[:]
+
+	fmt.Println("source array: ", array)
+	fmt.Println("source slice: ", slice)
+
+	arrayParams(array)
+	fmt.Println("source array modified: ", array)
+
+	sliceParams(slice)
+	fmt.Println("source slice modified: ", slice)
+}
+
+// 声明operate的类型为函数类型
+type operate func(x, y int) int
+
+func add(x, y int) int {
+	return x + y
+}
+
+// 实现一个函数，完成对2个数值得操作，具体的操作过程由调用方提供
+func compute(x, y int, op operate) (int, error) {
+	if op == nil {
+		return 0, errors.New("operate is invalid")
+	}
+	return op(x, y), nil
+}
+
+type computeFun func(x, y int) (int, error)
+
+func genComputeFun(op operate) computeFun {
+	return func(x, y int) (int, error) {
+		if op == nil {
+			return 0, errors.New("op is invalid")
+		}
+		return op(x,y), nil
+	}
+}
+
+func arrayParams(array [10]int)  {
+	fmt.Println("array parameters:", array)
+	array[0] = 888
+	fmt.Println("after updating:", array)
+}
+
+func sliceParams(slice []int) {
+	fmt.Println("slice parameters:", slice)
+	slice[0] = 999
+	fmt.Println("after updating:", slice)
+}
+```
+
+
+
 ## 三、Go 语言实战
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
