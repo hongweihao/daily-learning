@@ -668,6 +668,247 @@ func sliceParams(slice []int) {
 
 
 
+### 6. 结构体
+
+```go
+// AnimalCategory 代表动物分类学中的基本分类法。
+type AnimalCategory struct {
+  kingdom string // 界。
+  phylum string // 门。
+  class  string // 纲。
+  order  string // 目。
+  family string // 科。
+  genus  string // 属。
+  species string // 种。
+}
+
+func (ac AnimalCategory) String() string {
+  return fmt.Sprintf("%s%s%s%s%s%s%s",
+    ac.kingdom, ac.phylum, ac.class, ac.order,
+    ac.family, ac.genus, ac.species)
+}
+
+
+type Animal struct {
+  scientificName string // 学名。
+  AnimalCategory    // 动物基本分类。
+}
+```
+
+#### 6.1 Animal类型中的字段声明AnimalCategory代表了什么
+
+代表了嵌入字段，Go语言规定，一个字段的声明中只有字段类型没有字段名称，称这个字段是嵌入字段，也叫匿名字段。嵌入字段可以通过下面这种方式使用：
+
+```go
+animal := Animal{...}
+animal.AnimalCategory.xxx
+```
+
+此外，嵌入字段 `AnimalCategoary` 还有一个作用。嵌入字段的字段和方法集合会被无条件地合入到 `Animal` 中，但如果 Animal 中存在同名的字段或方法，那嵌入字段的字段方法会被“屏蔽”。
+
+
+
+#### 6.2 Go语言的嵌入字段实现了继承吗
+
+在Go中没有继承的概念，Go中使用嵌入字段实现类型间的组合。
+
+
+
+#### 6.3 值方法和指针方法都是什么意思，有什么区别？
+
+```go
+type Cat struct{
+    Name string
+}
+
+// 值方法
+func (cat Cat) SetName(name string){
+    cat.Name = name
+}
+
+// 指针方法
+func (cat *Cat) SetName(name string){
+    cat.Name = name
+}
+
+```
+
+方法可以理解为一个传了“接收类型对象参数“的函数。像这样：
+
+```go
+func SetName(cat Cat, name string){
+    cat.name = name
+}
+func SetName(cat *Cat, name string){
+    cat.name = name
+}
+```
+
+Go中，传给函数的参数会被复制，函数操作的实际上是这个复制出来的副本值。所以值方法中 `SetName` 时，操作的是值对象的一个副本，不会对原址有影响，但在指针方法中 `SetName` 时，操作的是指针对象的副本值，尽管是副本，但底层指向的是同一个地址，所以原址的 `Name` 属性会被覆盖。
+
+
+
+#### 6.4 可以在结构体类型中嵌入某个类型的指针类型吗？如果可以，有哪些注意事项？
+
+可以在结构体类型中嵌入指针类型。要注意的是，如果嵌入的是某个类型的值对象，该对象的零值为一个非 nil 的值且能直接使用。
+
+但如果嵌入的是某个类型的指针对象，指针对象的零值是 nil。若没有手动初始化对其操作，会发生nil point panic。
+
+
+
+#### 6.5 字面量struct{}代表了什么？又有什么用处？
+
+struct{}不占空间，可以拥有方法
+
+
+
+### 7. 接口
+
+![image-20210205092911915](https://gitee.com/mkii/md-image/raw/master/image-20210205092911915.png)
+
+```go
+type Pet interface {
+	Name() string
+	Category() string
+}
+
+type Dog struct {
+	name string
+}
+
+func (dog Dog) Name() string {
+	return dog.name
+}
+
+func (dog Dog) Category() string {
+	return "dog"
+}
+
+func (dog *Dog) SetName(name string) {
+	dog.name = name
+}
+```
+
+#### 
+
+#### 7.1 当我们为一个接口变量赋值时会发生什么？
+
+``` go
+func main() {
+	dog := Dog{"little pig"}
+	var pet Pet = dog
+    
+	dog.SetName("monster")
+	fmt.Println("pet name:", pet.Name()) // little pig
+}
+```
+
+##### 7.1.1 先明确接口类型的3个概念
+
+静态类型：接口本身的类型，不可变。Pet
+
+动态类型：接口的实现类型，可变。Dog
+
+动态值：接口的实现类型的值，可变。dog
+
+
+
+#### 7.1.2 上面代码执行完之后为什么不是打印 monster
+
+程序执行`dog.SetName("monster")`时，dog的name值已经被修改为monster。要注意的是，执行 `var pet Pet = doy` 时，pet对象拿到的其实是dog对象的一个副本值，所以后面对dog对象的修改对pet对象完全无影响
+
+>通用规则：
+>
+>赋值时，对象拿到的总是副本值，是否能对原对象产生影响主要看对象是值类型还是指针类型，值类型会完全复制内容。尽管指针类型也会进行复制，但复制后的指针和原指针指向的内存区域是相同的。
+
+
+
+#### 7.2 接口变量在什么时候才真正为nil
+
+- 声明未初始化
+- 将nil字面量之间赋给接口变量
+
+
+
+注意下面这种情况：
+
+```go
+func main() {
+	var dog *Dog = nil
+	var pet Pet
+	fmt.Println("1. pet2 is nil: ", pet == nil)
+
+	pet = dog
+	fmt.Println("2. pet2 is nil: ", pet == nil)
+}
+```
+
+> 1. pet2 is nil:  true
+> 2. pet2 is nil:  false
+
+尽管dog的值为nil，但赋给pet之后，pet的值不为nil。原因是接口变量的存储实际上是一层包装（iface），它不止存储值还会存储类型等其他信息，所以当使用dog对象赋给pet时，pet看起来像是拿到了nil，实际上它拿到了类型Dog，值nil
+
+
+
+#### 7.3 怎样实现接口之间的组合
+
+```go
+type Animal interface {
+	Pet
+	Skin()
+}
+```
+
+
+
+#### 7.4 如果把一个值为nil的变量赋给接口变量，那变量可以调用该接口的方法吗？注意事项
+
+可以，需要注意接口变量的值为nil，涉及到使用对象的操作都会出现空指针的panic
+
+
+
+### 8. 指针
+
+#### 8.1 Go语言中哪些值是不可寻址的
+
+
+
+#### 8.2 可以寻值得值在使用上的限制
+
+
+
+#### 8.3 通过unsafe.Pointer操纵可寻址的值
+
+
+
+
+
+
+
+
+
+### 9. go语句及其执行规则
+
+
+
+### 10. if，for，switch
+
+
+
+### 11. 错误处理
+
+
+
+### 12. panic，recover，defer
+
+
+
+
+
+
+
+
+
 ## 三、Go 语言实战
 
 
