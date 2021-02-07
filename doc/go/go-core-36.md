@@ -883,11 +883,122 @@ type Animal interface {
 
 
 
-
-
-
-
 ### 9. go语句及其执行规则
+
+#### 9.1 什么是主goroutine，它与我们启用的其他goroutine的区别
+
+Go 程序启动时会默认启用一个goroutine，启用其他goroutine需要使用go语句，启用时会先从groutine queue中查找是否有空闲的goroutine可用，如果有则直接使用，如果没有才去创建一个。
+
+主goroutine执行完成时，如果其他的goroutine未开始执行或者未执行完成，都会退出程序。
+
+```go
+for i := 0; i < 10; i++ {
+    go func() {
+        fmt.Println(i)
+    }()
+}
+```
+
+> 上面的程序会打印什么？
+>
+> 绝大概率不会打印任何东西。因为主goroutine执行完成之后就退出了程序，go函数没有机会去执行
+
+
+
+#### 9.2 如何让主gorountine等待其他的goroutine？
+
+##### 9.2.1 让主goroutine"睡"一会
+
+```go
+func main() {
+	for i := 0; i < 10; i++ {
+		go func() {
+			fmt.Println(i)
+		}()
+	}
+	time.Sleep(1 * time.Millisecond)
+}
+```
+
+> 打印结果每次不同，因为go函数中出现了闭包，i的值取决于外层的代码块执行快慢
+
+
+
+##### 9.2.2 channel
+
+```go
+func main() {
+	const num = 10
+	wait := make(chan struct{}, num)
+
+	for i := 0; i < num; i++ {
+		go func() {
+			fmt.Println(i)
+			wait <- struct{}{}
+		}()
+	}
+
+	for i := 0; i < num; i++ {
+		<-wait
+	}
+}
+```
+
+> 这里有个技巧，struct{}类型的值只能是struct{}{}，且不占用空间
+
+
+
+##### 9.2.3 sync.WaitGroup
+
+```go
+func main() {
+	var wg sync.WaitGroup
+	for i := 0; i < 10; i++ {
+		wg.Add(1)
+		go func() {
+			fmt.Println(i)
+			wg.Done()
+		}()
+	}
+	wg.Wait()
+}
+```
+
+
+
+#### 9.3 启用的goroutine如何按顺序执行
+
+```go
+import (
+	"fmt"
+	"sync/atomic"
+	"time"
+)
+func main() {
+	var count int32 = 0
+	var i int32 = 0
+	for ; i < 10; i++ {
+		fn := func(v int32) {
+			fmt.Println(v)
+		}
+		// 改成参数传入，去除闭包，让每个goroutine能被标识
+		go func(no int32, f func(v int32)) {
+			for  {
+				if count == no {
+					f(no)
+					atomic.AddInt32(&count, 1)
+				}else {
+					time.Sleep(1*time.Microsecond)
+				}
+			}
+		}(i, fn)
+	}
+
+	time.Sleep(1 * time.Second)
+}
+```
+
+> 这里使用了atomic包的AddInt32方法，是一个原子操作
 
 
 
