@@ -1006,13 +1006,214 @@ func main() {
 
 
 
+#### 10.6 switch与case之间的联系
+
+![image-20210209162541407](https://gitee.com/mkii/md-image/raw/master/image-20210209162541407.png)
+
+```go
+func main() {
+	value := []int8{0, 1, 2, 3, 4, 5, 6}
+	/*
+		//  编译错误
+		// 1+3的结果是一个无类型常量，会默认转成int类型，int类型与int8不能坐判断操作
+		switch 1 + 3 {
+		case value[0], value[1]:
+			fmt.Println("0 or 1")
+		case value[2], value[3]:
+			fmt.Println("2 or 3")
+		case value[4], value[5], value[6]:
+			fmt.Println("4 or 5 or 6")
+		}*/
+
+	// case中的0，1是无类型常量，会转成需要的int8类型
+	switch value[2] {
+	case 0, 1:
+		fmt.Println("0, 1")
+	case 2, 3:
+		fmt.Println("2, 3")
+	case 4, 5, 6:
+		fmt.Println("4,5,6")
+	}
+}
+```
+
+
+
+#### 10.7 switch对case有什么约束
+
+```go
+func main() {
+	slice := []int {0, 1, 1, 2}
+
+	/*
+	// case表达式不能相同
+	switch slice[0] {
+	case 0, 1:
+		fmt.Println("01")
+	case 0, 2:
+		fmt.Println("02")
+	}*/
+
+	// 会运行第一个匹配的case
+	switch 0{
+	case slice[0], slice[1]:
+		fmt.Println("01")
+	case slice[2], slice[3]:
+		fmt.Println("23")
+	}
+}
+```
+
+#### 10.8 在switch语句中，如何对被判断的值做类型转换
+
+使用类型断言
+
+```go
+type User struct {
+	Name string
+	Age int
+}
+
+func main() {
+	user := &User{
+		Name: "mkii",
+		Age: 18,
+	}
+
+	var iuser interface{} = user
+	switch user {
+	case iuser.(*User):
+		fmt.Println("111")
+	}
+}
+```
+
+
+
+#### 10.9 if语句中，初始化子句声明的变量作用域是什么
+
+![image-20210209222211661](https://gitee.com/mkii/md-image/raw/master/image-20210209222211661.png)
+
+
+
 ### 11. 错误处理
+
+#### 11.1 对于具体错误的判断，Go语言中有哪些惯用法
+
+##### 11.1.1 类型断言表达式或者switch
+
+```go
+// underlyingError returns the underlying error for known os error types.
+func underlyingError(err error) error {
+	switch err := err.(type) {
+	case *PathError:
+		return err.Err
+	case *LinkError:
+		return err.Err
+	case *SyscallError:
+		return err.Err
+	}
+	return err
+}
+```
+
+##### 11.1.2 判等
+
+##### 11.1.3 字符串识别
+
+
+
+#### 11.2 怎样根据实际情况给予错误值
+
+##### 11.2.1 立体的错误类型体系
+
+以error接口为根，一层层实现。
+
+此外，还有err字段可以链式查找最深层的错误
+
+
+
+##### 11.2.2 扁平的错误值列表
+
+预先创建一些代表已知的错误。需要注意防止篡改，可以定义为常量或者定义为私有属性并提供公有方法访问。
 
 
 
 ### 12. panic，recover，defer
 
+#### 12.1 从panic被引发到程序终止运行的大致过程
 
+从引发panic的语句开始，开始初始化panic详情，控制权逐级交由上层直到main，再由go运行时系统收回。最后在程序崩溃退出前打印panic详情。
+
+
+
+#### 12.2 怎样让panic包含一个值
+
+```go
+func main() {
+   fmt.Println("main enter........")
+   testPanic("my err msg")
+   fmt.Println("testPanic exit........")
+}
+
+func testPanic(errMsg string)  {
+   fmt.Println("testPanic enter........")
+   panic(errMsg)
+   fmt.Println("testPanic exit........")
+}
+```
+
+
+
+#### 12.3 如何施加应对panic的保护措施，避免程序崩溃
+
+使用defer+recover
+
+```go
+func main() {
+   defer func() {
+      err:= recover()
+      if err != nil {
+         fmt.Println("catch panic")
+      }
+   }()
+   
+   panic("my panic msg")
+}
+```
+
+#### 12.4 如果一个函数中有多个defer语句，他们的执行顺序是怎样的
+
+像栈一样，先进后出。底层是一个与函数对应的链表
+
+```go
+func main() {
+   /*defer func() {
+      fmt.Println("defer 1")
+   }()
+
+   defer func() {
+      fmt.Println("defer 2")
+   }()
+
+   defer func() {
+      fmt.Println("defer 3")
+   }()*/
+   loopDefer()
+   fmt.Println("main end")
+}
+
+func loopDefer() {
+   for i := 0; i < 10; i++ {
+      defer func(no int) {
+         fmt.Println("defer", no)
+      }(i)
+   }
+   fmt.Println("loopDefer end")
+}
+```
+
+### 13. 测试
 
 
 
