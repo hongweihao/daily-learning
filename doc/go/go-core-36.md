@@ -1261,3 +1261,30 @@ func loopDefer() {
 
 
 
+
+
+
+### 4. 原子操作atomic
+
+go语言中，goroutine在执行临界区中的代码时，可以不被其他的goroutine打扰，但却可以被中断（interruption）。也就是说互斥锁可以保证临界区代码的串行执行，但不能保证这些代码执行的原子性。
+
+#### 4.1 sync/atomic包中提供了几种原子操作？可操作的数据类型又有哪些？
+
+- add
+- cas
+- load
+- store
+- swap
+- Value类型（结构体）
+
+------
+
+- int32/int64
+- uint32/uint64
+- uintptr
+- unsafe.Pointer（不支持add）
+
+
+
+
+
