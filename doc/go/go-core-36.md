@@ -1211,8 +1211,6 @@ func loopDefer() {
 }
 ```
 
-### 
-
 ## 三、Go 语言实战
 
 ### 1. 测试（pending）
@@ -1237,30 +1235,180 @@ func loopDefer() {
 
 #### 2.1 使用互斥锁时有哪些注意事项
 
-- 不可重复锁定。
+- 不可重复锁定
 - 不要忘记解锁，推荐使用defer
 - 不可对未加锁或已解锁的互斥锁解锁
 - 不要在多个函数中传递互斥锁
 - sync.Mutex对象是一个值类型，要注意副本的产生
 
-
-
 #### 2.2 读写锁和互斥锁的异同
 
-|           | Mutex                       | RWMutex                                                      |
-| --------- | --------------------------- | ------------------------------------------------------------ |
-| 概念      | 互斥锁                      | 读写锁，分为读锁和写锁。多个写操作不能同时进行，写操作和读操作也不能同时进行，但多个读操作却可以同时进行。 |
-| 加锁/解锁 | m.Lock()/m.Unlock()         | rw.Lock()/rw.Unlock()<br/> rw.RLock()/rw.RUnlock()           |
-| 规则      | 重复加锁或重复解锁都会panic | 在写锁已被锁定的情况下再试图锁定写锁，会阻塞当前的 goroutine <br/>在写锁已被锁定的情况下试图锁定读锁，也会阻塞当前的 goroutine<br/>在读锁已被锁定的情况下试图锁定写锁，同样会阻塞当前的 goroutine<br/> 在读锁已被锁定的情况下再试图锁定读锁，并不会阻塞当前的 goroutine |
-|           |                             |                                                              |
+|           | Mutex                                             | RWMutex                                                      |
+| --------- | ------------------------------------------------- | ------------------------------------------------------------ |
+| 概念      | 互斥锁                                            | 读写锁，分为读锁和写锁。多个写操作不能同时进行，写操作和读操作也不能同时进行，但多个读操作却可以同时进行。 |
+| 加锁/解锁 | m.Lock()/m.Unlock()                               | rw.Lock()/rw.Unlock()<br/> rw.RLock()/rw.RUnlock()           |
+| 规则      | 锁已被锁定的情况下再试图拿锁，会阻塞当前goroutine | 在写锁已被锁定的情况下再试图锁定写锁，会阻塞当前的 goroutine <br/>在写锁已被锁定的情况下试图锁定读锁，也会阻塞当前的 goroutine<br/>在读锁已被锁定的情况下试图锁定写锁，同样会阻塞当前的 goroutine<br/> 在读锁已被锁定的情况下再试图锁定读锁，并不会阻塞当前的 goroutine |
+|           | 重复加锁或重复解锁都会panic                       | 重复加锁或重复解锁都会panic                                  |
+
+
+
+##### 2.2.1 sync.Mutex的使用
+
+```go
+func main() {
+	//var lock sync.Mutex
+	count := 0
+	for i := 0; i < 1000; i++ {
+		go func() {
+			//lock.Lock()
+			//defer lock.Unlock()
+			count++
+		}()
+	}
+	time.Sleep(1 * time.Second)
+	fmt.Println("count", count)
+}
+```
+
+> 结果是一个小于1000的值
+
+##### 2.2.2 sync.RWMutex的使用
+
+```go
+var count int
+var wg sync.WaitGroup
+// var rw sync.RWMutex
+
+func main() {
+   for i := 0; i < 5; i++ {
+      wg.Add(1)
+      go write(i)
+   }
+   for i := 0; i < 5; i++ {
+      wg.Add(1)
+      go read(i)
+   }
+   wg.Wait()
+}
+
+func read(i int) {
+   // rw.RLock()
+   // defer rw.RUnlock()
+   fmt.Printf("read(%d) start....\n", i)
+   v := count
+   fmt.Printf("read(%d): %d end.......\n", i, v)
+   wg.Done()
+}
+
+func write(i int) {
+   // rw.Lock()
+   // defer rw.Unlock()
+   fmt.Printf("write(%d) start....\n", i)
+   v := rand.Intn(1000)
+   count = v
+   fmt.Printf("write(%d): %d end.......\n", i, count)
+   wg.Done()
+}
+```
 
 
 
 ### 3. 条件变量sync.Cond
 
+条件变量并不是用来保护临界区和共享资源的，它用于协调想要访问共享资源的那些线程。
+
+当共享资源的状态发生变化时，可以用来通知被互斥锁阻塞的线程。
+
+#### 3.1 条件变量怎么与互斥锁配合使用
+
+```go
+// 条件变量与互斥锁配合使用
+var (
+	wg       sync.WaitGroup
+	data     uint8
+	lock     sync.RWMutex
+	sendCond = sync.NewCond(&lock)
+	recvCond = sync.NewCond(lock.RLocker())
+)
+
+func main() {
+	MutexAndCond()
+}
+
+func MutexAndCond() {
+	wg.Add(2)
+	go send(0)
+	// 仅适用于一个接收者的情况，因为接收者拿了读锁却修改了数据
+	go recv(1)
+	wg.Wait()
+}
+
+// 从信箱里收情报
+func recv(i int) {
+	fmt.Printf("receiver(%d) start\n", i)
+
+	lock.RLock()
+	for 0 == data {
+		recvCond.Wait()
+		fmt.Printf("receiver(%d) wait\n", i)
+	}
+
+	data = 0
+	lock.RUnlock()
+	sendCond.Broadcast()
+
+	fmt.Printf("receiver(%d) end\n", i)
+	wg.Done()
+}
+
+// 放情报进信箱
+func send(i int) {
+	time.Sleep(100 * time.Millisecond)
+	fmt.Printf("sender(%d) start\n", i)
+
+	lock.Lock()
+	// 如果信箱里面有情报就等待通知
+	for 1 == data {
+		// 放情报的人在等情报被取走
+		sendCond.Wait()
+		fmt.Printf("sender(%d) wait\n", i)
+	}
+
+	// 放好情报了，通知给别人
+	data = 1
+	lock.Unlock()
+	recvCond.Broadcast()
+
+	fmt.Printf("sender(%d) end\n", i)
+	wg.Done()
+}
+```
+
+> **为什么用for不用if？**
+>
+> 首先要明确for是持续的，if是一次性的。
+>
+> 1. 若A被唤醒，但此时的状态不是A要的，那么使用if就会直接执行后面的代码了，使用for相当于A被唤醒之后还会持续检查状态是不是自己要的。
+> 2. A在等待期间不一定是通过条件变量唤醒的，可能由其他的唤醒（例如操作系统）
 
 
 
+#### 3.2 条件变量的Wait方法做了什么
+
+- 把当前goroutine加入当前条件变量的通知队列中
+- 解锁当前条件变量的Locker对象
+- 让当前goroutine处于等待状态（阻塞在调用wait的那一行）
+- 被唤醒之后重新锁定当前条件变量的Locker对象
+
+
+
+#### 3.3 Singnal和Brodcast的异同
+
+同：都用来发送通知
+
+异：Signal通知的是等待队列的队首goroutine，而Brodcast通知的是等待队列的所以goroutine
+
+一个goroutine调用Wait方法会被放到等待队列的队尾，Signal会通知队首的goroutine，一般为等待时长最长的。
 
 
 
