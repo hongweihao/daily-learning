@@ -1436,3 +1436,48 @@ go语言中，goroutine在执行临界区中的代码时，可以不被其他的
 
 
 
+#### 4.4 CAS和Swap的区别
+
+CAS：先比较原子值是否和预期的值相等，若相等则将新值赋给当前值并返回true，否则就忽略交换操作并返回false
+
+Swap：将新值赋给原子值
+
+
+
+#### 4.5 在其他的写操作原子的情况下，读操作有必要使用原子操作吗
+
+有必要，如果读操作不具备原子性，有可能读到不完整的值，即读到一半被其他操作修改了。
+
+
+
+#### 4.6 atomic.Value
+
+相当于一个容器，可以用来“原子地”存储/加载值。
+
+它是开箱即用的，有2个方法Store和Load
+
+**注意点**
+
+- 一旦atomic.Value被使用，就不该再被复制
+- 不能存储nil
+- 存储的第一个值的类型决定了以后这个Value只能存储此类型的值
+
+```go
+func main() {
+	var v atomic.Value
+
+	var a = 12
+	v.Store(a)
+	fmt.Println(v.Load()) // 12
+
+	// 不该被复制
+	copyV := v
+	copyV.Store(24)
+	fmt.Println(copyV.Load()) // 24
+	fmt.Println(v.Load())     // 12 如果Value内存储的指针，这里为什么不是24？
+
+	// v.Store(nil) // panic: sync/atomic: store of nil value into Value
+	// v.Store("str") // panic: sync/atomic: store of inconsistently typed value into Value
+}
+```
+
