@@ -41,7 +41,7 @@ func atomicUint32Functions() {
 
 	// 表示data - 2
 	var delta2 int32 = 2 - 1
-	// ^便是当前值delta2(1)与int32的最大值(2^32)做异或操作
+	// 表示当前值delta2(1)与int32的最大值(2^32)做异或操作
 	// 例如^unit8(1) => 00000001 ^ 11111111 = 11111110
 	// 补码相同：
 	atomic.AddUint32(&data, ^uint32(delta2))
