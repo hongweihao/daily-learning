@@ -1497,23 +1497,37 @@ func main() {
 
 #### 5.2 Once的Do方法如何保证执行参数函数一次
 
+sync.Once用来保证代码只允许一遍。Once的内部有个变量done（默认值为0）保存着执行状态一旦参数函数执行完成就会将done的值设置为1。
 
+```go
+// Do方法源码
+// 这里和单例模式的双重检查相似
+func (o *Once) Do(f func()) {
+    // 先查看done的值，快失败
+	if atomic.LoadUint32(&o.done) == 0 {
+		o.doSlow(f)
+	}
+}
 
-
-
-看源码
-
-
+func (o *Once) doSlow(f func()) {
+    // 其他的goroutine会被阻塞在此
+	o.m.Lock()
+	defer o.m.Unlock()
+	if o.done == 0 {
+		defer atomic.StoreUint32(&o.done, 1)
+		f()
+	}
+}
+```
 
 
 
 #### 5.3 Do方法的特点
 
+- 如果参数函数运行慢，或者压根不会退出。那么其他调用此Do方法的goroutine会被阻塞
+- 函数参数在运行结束时总会将done的值设置为1，无论函数参数运行结果如何。也就是说done标记的是函数参数是否运行？至于结果它并不关心。
 
 
 
-
-
-
-
+### 6. Context
 
