@@ -1531,3 +1531,97 @@ func (o *Once) doSlow(f func()) {
 
 ### 6. Context
 
+#### 6.1 使用context实现一对多的goroutine协作流程
+
+```go
+func main() {
+	//ctx, cancel := context.WithCancel(context.Background())
+	ctx, cancel := context.WithDeadline(context.Background(), time.Now().Add(5))
+	var num int32
+	total := 12
+	for i := 0; i < total; i++ {
+		go addNum(i, &num, func() {
+			if atomic.LoadInt32(&num) == int32(total) {
+				fmt.Println(i, "stop.......")
+				cancel()
+			}
+		})
+	}
+	<-ctx.Done()
+	fmt.Println(ctx.Err())
+}
+
+func addNum(id int, numP *int32, cancel func())  {
+	fmt.Println(id, "start....")
+	defer cancel()
+	num := atomic.LoadInt32(numP)
+	newNum := num + 1
+	if atomic.CompareAndSwapInt32(numP, num, newNum){
+		fmt.Println(id, "cas", num, newNum)
+	}
+	fmt.Println(id, "end....")
+}
+```
+
+
+
+#### 6.2 可撤销的context代表什么？撤销一个context会发生什么
+
+撤销即一个gotoutine发送撤销信号，另一个goroutine（主goroutine）接收信号。
+
+撤销有2种：
+
+- 手动撤销，即手动调用cancel方法
+- 到时自动撤销，当前时间等于设置的deadline时撤销
+
+撤销一个context时，ctx.Done()返回的通道会被关闭，即接收操作不再阻塞。
+
+
+
+#### 6.3 撤销信号如何在上下文树之间传播
+
+撤销函数被调用后：
+
+- 先关闭内部接收通道
+- 向所有子节点传送撤销信号（递归）
+- 这个context断开与复制的联系
+
+> context.WithValue产生的值不可撤销，被跳过但会尝试通知它的子节点
+
+
+
+#### 6.4 如何通过context携带数据？如何获取数据
+
+```go
+func main() {
+	ctx := context.WithValue(context.Background(), "name", "mkii")
+	ctx2, cancel := context.WithCancel(ctx)
+
+	go func() {
+		fmt.Println("start...")
+		time.Sleep(time.Second)
+		cancel()
+		fmt.Println("end....")
+	}()
+
+	<-ctx2.Done()
+	fmt.Println("name", ctx2.Value("name"))
+}
+```
+
+### 7. sync.Pool
+
+
+
+
+
+### 8. sync.Map
+
+
+
+
+
+
+
+
+
