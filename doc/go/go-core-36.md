@@ -1617,6 +1617,127 @@ func main() {
 
 ### 8. sync.Map
 
+#### 8.1 syncMap对key的类型有要求吗
+
+有要求，不能是函数、字典和切片类型
+
+
+
+#### 8.2 如何保证syncMap中key-value类型的正确性
+
+##### 8.2.1 固定key-value类型（例如这里固定key为int类型，value为string类型）
+
+```go
+type IntStrSyncMap struct {
+   m sync.Map
+}
+
+func NewIntStrSyncMap() *IntStrSyncMap {
+   return &IntStrSyncMap{}
+}
+
+func (intStrSyncMap *IntStrSyncMap) Store(key int, value string)  {
+   intStrSyncMap.m.Store(key, value)
+}
+
+func (intStrSyncMap *IntStrSyncMap) Load(key int) (string, bool) {
+   value, ok := intStrSyncMap.m.Load(key)
+   return value.(string), ok
+}
+```
+
+
+
+##### 8.2.2 指定key-value类型
+
+```go
+type ConcurrentMap struct {
+   m         sync.Map
+   keyType   reflect.Type
+   valueType reflect.Type
+}
+
+func badType(t reflect.Type) bool {
+   return t == nil || t.Kind() == reflect.Slice || t.Kind() == reflect.Map || t.Kind() == reflect.Func
+}
+
+func NewConcurrentMap(keyType, valueType reflect.Type) *ConcurrentMap {
+   if badType(keyType) {
+      panic("Invalid type for key")
+   }
+   if badType(valueType) {
+      panic("Invalid type for value")
+   }
+
+   return &ConcurrentMap{
+      keyType:   keyType,
+      valueType: valueType,
+   }
+}
+
+func (concurrentMap *ConcurrentMap) Store(key, value interface{}) {
+   if reflect.TypeOf(key) != concurrentMap.keyType {
+      panic("no support type for key")
+   }
+   if reflect.TypeOf(value) != concurrentMap.valueType {
+      panic("no support type for value")
+   }
+   concurrentMap.m.Store(key, value)
+}
+
+func (concurrentMap *ConcurrentMap) Load(key interface{}) (interface{}, bool) {
+   if reflect.TypeOf(key) != concurrentMap.keyType {
+      panic("no support type for key")
+   }
+   return concurrentMap.m.Load(key)
+}
+```
+
+
+
+- 测试代码
+
+```go
+func main() {
+
+   intStrSyncMap := NewIntStrSyncMap()
+   intStrSyncMap.Store(1, "111")
+   intStrSyncMap.Store(2, "222")
+
+   v1, _ := intStrSyncMap.Load(1)
+   v2, _ := intStrSyncMap.Load(2)
+
+   fmt.Println("1", v1)
+   fmt.Println("2", v2)
+
+   concurrentMap := NewConcurrentMap(reflect.TypeOf(0), reflect.TypeOf(""))
+   concurrentMap.Store(3, "333")
+   concurrentMap.Store(4, "444")
+
+   v3, _ := concurrentMap.Load(3)
+   v4, _ := concurrentMap.Load(4)
+
+   fmt.Println("3", v3)
+   fmt.Println("4", v4)
+}
+```
+
+
+
+#### 8.3 syncMap如何做到尽量避免使用锁
+
+
+
+
+
+
+
+### 9. unicode与字符编码
+
+
+
+
+
 
 
 
