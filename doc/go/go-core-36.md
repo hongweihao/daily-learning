@@ -1757,7 +1757,44 @@ func main() {
 
 ### 9. unicode与字符编码
 
+http://www.ruanyifeng.com/blog/2007/10/ascii_unicode_and_utf-8.html
 
+
+
+#### 9.1 一个string类型的值在底层如何被表达
+
+一个string类型的值是由一系列相对应的 Unicode 代码点的 UTF-8 编码值来表达的。
+
+```go
+str := "Go爱好者"
+fmt.Printf("The string: %q\n", str)
+fmt.Printf("  => runes(char): %q\n", []rune(str))
+fmt.Printf("  => runes(hex): %x\n", []rune(str))
+fmt.Printf("  => bytes(hex): [% x]\n", []byte(str))
+```
+
+> The string: "Go爱好者"
+>   => runes(char): ['G' 'o' '爱' '好' '者']
+>   => runes(hex): [47 6f 7231 597d 8005]
+>   => bytes(hex): [47 6f e7 88 b1 e5 a5 bd e8 80 85]
+
+
+
+#### 9.2 使用range遍历字符串时的注意点
+
+```go
+str1 := "Go爱好者"
+for i, c := range str1 {
+    fmt.Printf("%d: %q [% x]\n", i, c, []byte(string(c)))
+}
+```
+
+> 注意index：=========================
+> 0: 'G' [47]
+> 1: 'o' [6f]
+> 2: '爱' [e7 88 b1]
+> 5: '好' [e5 a5 bd]
+> 8: '者' [e8 80 85]
 
 
 
