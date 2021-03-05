@@ -1726,13 +1726,13 @@ func main() {
 
 #### 8.3 syncMap如何做到尽量避免使用锁
 
-#### 8.5 结构
+##### 8.3.1 结构
 
 ![image-20210305001101781](https://gitee.com/mkii/md-image/raw/master/image-20210305001101781.png)
 
 （图片来源：https://www.jianshu.com/p/43e66dab535b）
 
-#### 8.6 原理
+##### 8.3.2 原理
 
 - 将数据分别存在read和dirty2个map中
 
@@ -1744,7 +1744,7 @@ func main() {
 
 
 
-#### 8.7 lock-free实现的sync.Map与segment分段锁实现的[ConcurrentMap](https://github.com/halfrost/Halfrost-Field/tree/master/contents/Go/go_map_bench_test/concurrent-map)的比较
+##### 8.3.3 lock-free实现的sync.Map与segment分段锁实现的[ConcurrentMap](https://github.com/halfrost/Halfrost-Field/tree/master/contents/Go/go_map_bench_test/concurrent-map)的比较
 
 |            | mutexMap        | sync.Map                          | ConcurrentMap                              |
 | ---------- | --------------- | --------------------------------- | ------------------------------------------ |
@@ -1755,13 +1755,15 @@ func main() {
 
 
 
-
-
-
-
-
-
 ### 9. unicode与字符编码
+
+
+
+
+
+### 10. strings包与字符串操作
+
+
 
 
 
