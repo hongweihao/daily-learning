@@ -1726,6 +1726,35 @@ func main() {
 
 #### 8.3 syncMap如何做到尽量避免使用锁
 
+#### 8.5 结构
+
+![image-20210305001101781](https://gitee.com/mkii/md-image/raw/master/image-20210305001101781.png)
+
+（图片来源：https://www.jianshu.com/p/43e66dab535b）
+
+#### 8.6 原理
+
+- 将数据分别存在read和dirty2个map中
+
+- read用来读和原子写（这里有一点，value的值底层使用的是unsafe.Pointer，可以使用atomic提供的CAS），但不会新增key
+
+- dirty可以理解为read的超集，dirty的访问都需要加锁。添加一个key-value时，此key不存在，需要写入到dirty
+
+- 当从read中load值失败次数超过dirty的长度时，dirty会给read且dirty会被置为nil
+
+
+
+#### 8.7 lock-free实现的sync.Map与segment分段锁实现的[ConcurrentMap](https://github.com/halfrost/Halfrost-Field/tree/master/contents/Go/go_map_bench_test/concurrent-map)的比较
+
+|            | mutexMap        | sync.Map                          | ConcurrentMap                              |
+| ---------- | --------------- | --------------------------------- | ------------------------------------------ |
+| 原理       | mutex互斥锁+map | read+dirty+cas+mutex（lock-free） | 分段锁，每操作一个区块需要先获取此区块的锁 |
+| Store性能  | 中              | 低                                | 高                                         |
+| Load性能   | 低              | 高                                | 中                                         |
+| Delete性能 | 低              | 高                                | 中                                         |
+
+
+
 
 
 
