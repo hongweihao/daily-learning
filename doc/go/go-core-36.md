@@ -1735,12 +1735,13 @@ func main() {
 ##### 8.3.2 原理
 
 - 将数据分别存在read和dirty2个map中
-
 - read用来读和原子写（这里有一点，value的值底层使用的是unsafe.Pointer，可以使用atomic提供的CAS），但不会新增key
-
 - dirty可以理解为read的超集，dirty的访问都需要加锁。添加一个key-value时，此key不存在，需要写入到dirty
-
 - 当从read中load值失败次数超过dirty的长度时，dirty会给read且dirty会被置为nil
+
+
+
+> read和dirty中的value都指向entry，entry中的unsafe.Pointer变化可以实现read和dirty同时变化
 
 
 
@@ -1799,6 +1800,72 @@ for i, c := range str1 {
 
 
 ### 10. strings包与字符串操作
+
+#### 10.1 与string相比，strings.Builder有什么优势
+
+- 已存在的内容不可变
+- 减少了内存分配和内容拷贝次数
+- 可重置重用值
+- 字符串拼接（主要优势）
+
+|      | string                                                 | strings .Builder                                             |
+| ---- | ------------------------------------------------------ | ------------------------------------------------------------ |
+| 底层 | 通过unsafe.Pointer指向一个不可变的字节数组             | 通过unsafe.Pointer指向一个字节切片。已存在的值不可变，可添加内容到字节切片的尾部。可重置 |
+| 操作 | 切片表达式，+等                                        | Write，WriteByte，WriteString，WriteRune                     |
+| copy | 共用一个底层的字节数组，因为不可变所以不用担心冲突问题 | 一旦使用不可被复制，需要使用方自行解决冲突                   |
+
+```go
+func main() {
+	s := "mkii"
+	b := []byte("hong")
+	r := []rune("works")
+
+	var builder strings.Builder
+
+	builder.WriteString(s)
+	builder.Write(b)
+
+	for _, v := range b {
+		builder.WriteByte(v)
+	}
+
+	for _, v := range r {
+		builder.WriteRune(v)
+	}
+	fmt.Println(builder.String())
+
+	builder.Reset()
+	fmt.Println(builder.String())
+}
+```
+
+
+
+#### 10.2 为什么string.Reader类型值可以更高效地读取字符串
+
+已读计数记录着下次读取的起始索引位置
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
