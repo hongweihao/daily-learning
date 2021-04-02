@@ -13,7 +13,7 @@ import (
 	"go-kit-demo/service"
 )
 
-type UserEndpoint struct {
+type UserEndpoints struct {
 	RegisterEndPoint endpoint.Endpoint
 	LoginEndPoint    endpoint.Endpoint
 }
@@ -27,9 +27,17 @@ type UserRsp struct {
 	common.Rsp
 }
 
+// 如果使用这种方式会有 copy value
+/*func NewUserEndpoints(userService service.IUserService) UserEndpoints{
+	return UserEndpoints{
+		RegisterEndPoint: MakeLoginEndpoint(userService),
+		LoginEndPoint:    MakeLoginEndpoint(userService),
+	}
+}*/
+
 func MakeRegisterEndpoint(userService service.IUserService) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
-		req := request.(UserReq)
+		req := request.(*UserReq)
 
 		userInfo := &service.UserInfo{
 			UserName: req.UserName,
@@ -45,7 +53,7 @@ func MakeRegisterEndpoint(userService service.IUserService) endpoint.Endpoint {
 
 func MakeLoginEndpoint(userService service.IUserService) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
-		req := request.(UserReq)
+		req := request.(*UserReq)
 		if err := userService.Login(ctx, req.UserName, req.Password); err != nil {
 			return nil, err
 		}
