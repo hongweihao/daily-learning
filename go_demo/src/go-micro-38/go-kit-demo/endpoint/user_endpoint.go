@@ -2,8 +2,7 @@
 // 1. 定义方法级的 endpoint入口。 例如注册和登录是2个endpoint
 // 2. 定义 request 的数据结构
 // 3. 定义 response 的数据结构
-// 4. request 数据校验？
-// 5. 利用装饰器做其他的功能。例如，限流rate limit
+// 4. 利用装饰器做其他的功能。例如，限流rate limit
 package endpoint
 
 import (

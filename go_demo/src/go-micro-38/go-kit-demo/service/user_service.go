@@ -8,6 +8,7 @@ import (
 )
 
 var (
+	// 定义错误类型，避免字符串判断
 	ErrorLogin    = errors.New("failed to login")
 	ErrorRegister = errors.New("failed to register")
 )
