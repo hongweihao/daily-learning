@@ -1611,6 +1611,58 @@ func main() {
 
 ### 7. sync.Pool
 
+用来保存一组可独立访问的临时对象，可以被称为临时对象池
+
+#### 7.1 特点
+
+- 线程安全
+- 使用后不可复制
+
+#### 7.2 使用方法
+
+##### 7.2.1 New 属性
+
+Pool struct 中有一个属性New 类型是 `func() interface{}`，在初始化一个 sync.Pool 对象时需要指定。如果从Pool中获取不到对象时，会通过 New 对应的方法生成一个对象并返回。如果没指定 New 的值则获取对象时返回nil
+
+##### 7.2.2 Get
+
+从Pool中取走一个对象，注意该对象会被从pool移除
+
+##### 7.2.3 Put
+
+将对象返还给Pool
+
+```go
+func NewByte() interface{} {
+	return make([]int, 0, 2)
+}
+
+func main() {
+	pool := &sync.Pool{New: NewByte}
+
+	bytes := pool.Get().([]int)
+	fmt.Println(len(bytes), cap(bytes))
+
+	pool.Put(bytes)
+}
+```
+
+
+
+#### 7.4 使用场景
+
+- buffer缓冲池
+- server端解析大量的request对象
+- fmt打印
+
+
+
+
+
+
+
+
+
 
 
 
