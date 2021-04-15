@@ -1611,7 +1611,116 @@ func main() {
 
 ### 7. sync.Pool
 
+用来保存一组可独立访问的临时对象，可以被称为临时对象池
 
+#### 7.1 特点
+
+- 线程安全
+- 使用后不可复制
+
+
+
+#### 7.2 实现原理
+
+sync.Pool的数据结构如下：(from: https://time.geekbang.org/column/article/301716)
+
+![image-20210415092038136](https://gitee.com/mkii/md-image/raw/master/image-20210415092038136.png)
+
+
+
+Pool 中用来存储空闲对象的属性主要是 local 和 victim，GC之前 Pool（sync初始化时会注册一个用于清除的函数） 会先把 victim 中的对象移除，然后在把 local 中的对象转移到 victim 中。
+
+Get 获取对象的路径： local.PoolLocalInternel.private（P级私有） -> local.PoolLocalInternel.share -> getSlow -> New
+
+getSlow获取对象：遍历 其他 local 的 share -> victim 的 private -> victim 的 share
+
+Put对象的路径：local 的 private -> other local 的 private
+
+
+
+#### 7.3 使用方法
+
+> Pool struct 中有一个属性New 类型是 `func() interface{}`，在初始化一个 sync.Pool 对象时需要指定。如果从Pool中获取不到对象时，会通过 New 对应的方法生成一个对象并返回。如果没指定 New 的值则获取对象时返回nil
+
+1. 从Pool中取走一个对象，（注意该对象会被从pool移除）
+2. do something
+3. 将对象的数据清除
+4. 将对象返还给Pool
+
+```go
+func NewByte() interface{} {
+	return make([]int, 0, 2)
+}
+
+func main() {
+	pool := &sync.Pool{New: NewByte}
+
+	bytes := pool.Get().([]int)
+	fmt.Println(len(bytes), cap(bytes))
+
+	pool.Put(bytes)
+}
+```
+
+
+
+#### 7.4 使用场景
+
+- buffer缓冲池
+- server端解析大量的request对象
+- fmt打印
+
+>  buffer缓冲池为例：（from: https://geektutu.com/post/hpg-sync-pool.html）
+
+```go
+package main
+
+import (
+	"bytes"
+	"sync"
+	"testing"
+)
+
+var data = make([]byte, 10000)
+
+func BenchmarkBufferPool(b *testing.B) {
+	var pool = sync.Pool{
+		New: func() interface{} {
+			return &bytes.Buffer{}
+		},
+	}
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		buf := pool.Get().(*bytes.Buffer)
+		buf.Write(data)
+
+		buf.Reset()
+		pool.Put(buf)
+	}
+	b.StopTimer()
+}
+func BenchmarkBuffer(b *testing.B) {
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		var buf = &bytes.Buffer{}
+		buf.Write(data)
+	}
+	b.StopTimer()
+}
+
+```
+
+```
+BenchmarkBufferPool-6   10619402	       119 ns/op	       0 B/op	       0 allocs/op
+BenchmarkBuffer-6       750046	           1648 ns/op	   10240 B/op	       1 allocs/op
+```
+
+
+
+#### 7.5 注意内存泄漏和内存浪费问题
+
+从 Pool 中获取 slice 对象，做一些操作之后 Put 到 Pool中，可能会有扩容的情况发生，这会导致 Pool 中的对象的 cap 只增不减。
 
 
 
