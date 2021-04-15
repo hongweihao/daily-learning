@@ -16,7 +16,7 @@ func init() {
 	}
 }
 
-func main() {
-	flag.Parse()
-	fmt.Println("foo: ", foo)
-}
+// func main() {
+// 	flag.Parse()
+// 	fmt.Println("foo: ", foo)
+// }
