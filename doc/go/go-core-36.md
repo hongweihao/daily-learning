@@ -1215,15 +1215,77 @@ func loopDefer() {
 
 ### 1. 测试（pending）
 
+Go 中的测试分为 3 类：
+
+1. 功能测试：test
+2. 基准测试也叫性能测试：benchmark
+3. ~~示例测试：example~~
+
 #### 1.1 Go语言对测试函数的名称和签名有什么要求
+
+测试文件以 `_test.go` 结尾。一般来说对源码文件 example.go 进行测试，它的测试源码文件命名应该为 example_test.go
+
+```go
+import "testing"
+
+// 功能测试的函数名称必须以Test开头
+// 参数列表必须是 *testing.T 类型的参数
+func TestUnitTestFuncName(t *testing.T) {
+	t.Log("log")
+	t.Logf("t.Name() = %v", t.Name())
+	t.Error("error") // 表示失败，但依然会继续执行程序
+	t.Fatal("Fatal") // 表示失败，终止程序
+	t.Logf("After Fatal")
+}
+// go test
+
+
+// 性能测试的函数名称必须以Benchmark开头
+// 参数列表必须是 *testing.B 类型的参数
+// go test -bench=. -run=^$
+func BenchmarkBenchmarkTestFuncName(b *testing.B) {
+	// 耗时操作
+	b.ResetTimer() // 重置计时器，如果前面做了耗时地操作
+	for i := 0; i < b.N; i++ {
+		b.Log(i)
+	}
+	b.StopTimer()
+}
+```
 
 
 
 #### 1.2 `go test` 命令的主要测试流程是什么
 
+1. 准备工作：确定内部使用的命令，检查代码的合法性
+2. 构建执行包中符合要求的测试函数
+3. 清理临时文件，打印测试结果
 
 
-#### 1.3 怎样解释功能测试的测试结果
+
+#### 1.3 怎样解释功能测试的结果
+
+功能测试的结果取决于执行测试函数的过程中是否调用到 Fail 方法。若调用了 Fail 方法则测试结果为 `FAIL`，否则为 `PASS`
+
+
+
+#### 1.4 解释性能测试的结果
+
+![image-20210416233017032](https://gitee.com/mkii/md-image/raw/master/image-20210416233017032.png)
+
+> 图片来自：Go语言核心36讲
+>
+> https://static001.geekbang.org/resource/image/78/69/78d4c73a9aa9d48b59d3fd304d4b2069.png
+
+
+
+#### 1.5 常用标记
+
+`-cpu` 设置 P 的最大数量
+
+`-parallel` 设置功能测试函数最大并发数，默认是 `-cpu` 的值
+
+`-benchmem` 性能测试模式下，打印内存使用情况
 
 
 
