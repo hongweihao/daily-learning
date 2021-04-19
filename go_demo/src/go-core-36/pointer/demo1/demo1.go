@@ -69,5 +69,4 @@ func main() {
 	var chan1 = make(chan int, 1)
 	chan1 <- 1
 	//_ = &(<-chan1) // 接收表达式的结果值不可寻址。
-
 }

@@ -867,17 +867,126 @@ type Animal interface {
 
 
 
-### 8. 指针（pending）
+### 8. 指针
+
+指针是一种数据类型，用于存储一个内存地址，该地址指向存在该内存中的对象
+
+Go 语言中指针有2个特点：
+
+- 可以修改指向数据的值
+- copy时可以节省内存
 
 #### 8.1 Go语言中哪些值是不可寻址的
 
+```go
+type Named interface {
+	// Name 用于获取名字。
+	Name() string
+}
 
+type Dog struct {
+	name string
+}
 
-#### 8.2 可以寻值得值在使用上的限制
+func (dog *Dog) SetName(name string) {
+	dog.name = name
+}
+
+func (dog Dog) Name() string {
+	return dog.name
+}
+
+func main() {
+	// 示例1。
+	const num = 123
+	//_ = &num // 常量不可寻址。
+	//_ = &(123) // 基本类型值的字面量不可寻址。
+
+	var str = "abc"
+	_ = str
+	//_ = &(str[0]) // 对字符串变量的索引结果值不可寻址。
+	//_ = &(str[0:2]) // 对字符串变量的切片结果值不可寻址。
+	str2 := str[0]
+	_ = &str2 // 但这样的寻址就是合法的。
+
+	//_ = &(123 + 456) // 算术操作的结果值不可寻址。
+	num2 := 456
+	_ = num2
+	//_ = &(num + num2) // 算术操作的结果值不可寻址。
+
+	//_ = &([3]int{1, 2, 3}[0]) // 对数组字面量的索引结果值不可寻址。
+	//_ = &([3]int{1, 2, 3}[0:2]) // 对数组字面量的切片结果值不可寻址。
+	_ = &([]int{1, 2, 3}[0]) // 对切片字面量的索引结果值却是可寻址的。
+	//_ = &([]int{1, 2, 3}[0:2]) // 对切片字面量的切片结果值不可寻址。
+	//_ = &(map[int]string{1: "a"}[0]) // 对字典字面量的索引结果值不可寻址。
+
+	var map1 = map[int]string{1: "a", 2: "b", 3: "c"}
+	_ = map1
+	//_ = &(map1[2]) // 对字典变量的索引结果值不可寻址。
+
+	//_ = &(func(x, y int) int {
+	//	return x + y
+	//}) // 字面量代表的函数不可寻址。
+	//_ = &(fmt.Sprintf) // 标识符代表的函数不可寻址。
+	//_ = &(fmt.Sprintln("abc")) // 对函数的调用结果值不可寻址。
+
+	dog := Dog{"little pig"}
+	_ = dog
+	//_ = &(dog.Name) // 标识符代表的函数不可寻址。
+	//_ = &(dog.Name()) // 对方法的调用结果值不可寻址。
+
+	//_ = &(Dog{"little pig"}.name) // 结构体字面量的字段不可寻址。
+
+	//_ = &(interface{}(dog)) // 类型转换表达式的结果值不可寻址。
+	dogI := interface{}(dog)
+	_ = dogI
+	//_ = &(dogI.(Named)) // 类型断言表达式的结果值不可寻址。
+	named := dogI.(Named)
+	_ = named
+	//_ = &(named.(Dog)) // 类型断言表达式的结果值不可寻址。
+
+	var chan1 = make(chan int, 1)
+	chan1 <- 1
+	//_ = &(<-chan1) // 接收表达式的结果值不可寻址。
+}
+```
 
 
 
 #### 8.3 通过unsafe.Pointer操纵可寻址的值
+
+Go 语言中有3中类型的指针：
+
+- *T：类型的指针。例如 int -> *int
+- unsafe.Pointer：一种特殊的指针类型，可表示任何的指针。主要用于转换
+- uintptr：足够大，可以表示任何指针。主要用于计算
+
+![image-20210420003751418](https://gitee.com/mkii/md-image/raw/master/image-20210420003751418.png)
+
+```go
+type Student struct {
+	Id   int
+	Name string
+	Age  int
+}
+
+// 使用unsafe.Pointer 操作对象
+func main() {
+
+	s := new(Student)
+	fmt.Printf("s: %p, %v", s, s)
+
+	// Student对象的指针就是首个field的指针
+	idp := (*int)(unsafe.Pointer(uintptr(unsafe.Pointer(s))))
+	*idp = 1002
+
+	// 通过偏移量计算第二个field的指针
+	namePtr := (*string)(unsafe.Pointer(uintptr(unsafe.Pointer(s)) + unsafe.Offsetof(s.Name)))
+	*namePtr = "MKII"
+
+	fmt.Println("s2:", s)
+}
+```
 
 
 
