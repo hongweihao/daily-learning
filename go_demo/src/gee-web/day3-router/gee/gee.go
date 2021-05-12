@@ -7,27 +7,27 @@ import (
 
 type HandleFunc func(c *Context)
 
-type Engin struct {
+type Engine struct {
 	routers *Router
 }
 
-func New() *Engin {
-	return &Engin{
+func New() *Engine {
+	return &Engine{
 		routers: NewRouter(),
 	}
 }
 
-func (engin *Engin) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
+func (engine *Engine) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	c := NewContext(rw, r)
-	engin.routers.handle(c)
+	engine.routers.handle(c)
 }
 
-func (engin *Engin) GET(pattern string, handle HandleFunc) {
-	engin.routers.addRouter(http.MethodGet, pattern, handle)
+func (engine *Engine) GET(pattern string, handle HandleFunc) {
+	engine.routers.addRouter(http.MethodGet, pattern, handle)
 }
-func (engin *Engin) POST(pattern string, handle HandleFunc) {
-	engin.routers.addRouter(http.MethodPost, pattern, handle)
+func (engine *Engine) POST(pattern string, handle HandleFunc) {
+	engine.routers.addRouter(http.MethodPost, pattern, handle)
 }
-func (engin *Engin) Run(addr string) {
-	http.ListenAndServe(addr, engin)
+func (engine *Engine) Run(addr string) {
+	http.ListenAndServe(addr, engine)
 }

@@ -1,20 +1,32 @@
 package gee
 
-import "strings"
+import (
+	"strings"
+)
 
 type Router struct {
-	routers map[string]HandleFunc
+	roots    map[string]*Trie
+	handlers map[string]HandleFunc
 }
 
 func NewRouter() *Router {
 	return &Router{
-		routers: make(map[string]HandleFunc),
+		roots:    make(map[string]*Trie),
+		handlers: make(map[string]HandleFunc),
 	}
 }
 
 func (router *Router) addRouter(method, pattern string, handle HandleFunc) {
+	tree := router.roots[method]
+	if tree == nil {
+		root := NewTrie()
+		router.roots[method] = root
+		tree = root
+	}
+	tree.Insert(pattern)
+
 	key := strings.Join([]string{method, pattern}, "-")
-	router.routers[key] = handle
+	router.handlers[key] = handle
 }
 
 func (router *Router) handle(c *Context) {
