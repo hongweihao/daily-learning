@@ -24,6 +24,7 @@ func (t *Trie) Insert(pattern string) {
 	t.insert(t.Root, pattern, parts, 0)
 }
 
+// todo bug repeated pattern
 func (t *Trie) insert(n *node, pattern string, parts []string, index int) {
 	// 已经存在，无需插入
 	if len(parts) == index {
@@ -40,6 +41,14 @@ func (t *Trie) insert(n *node, pattern string, parts []string, index int) {
 			findNode = child
 			break
 		}
+
+		// 任意匹配， repeatedly insert
+		//if part[0] == ':' || part[0] == '*' {
+		//	child.Part = part
+		//	child.IsWild = true
+		//	findNode = child
+		//	break
+		//}
 	}
 
 	// 没找到，创建一个新的节点
@@ -58,6 +67,47 @@ func (t *Trie) insert(n *node, pattern string, parts []string, index int) {
 	t.insert(findNode, pattern, parts, index+1)
 }
 
+func (t Trie) Search(pattern string) (*node, map[string]string) {
+	patternTrim := strings.Trim(pattern, "/")
+	parts := strings.Split(patternTrim, "/")
+
+	params := make(map[string]string)
+	n := t.search(t.Root, pattern, parts, 0, params)
+	return n, params
+}
+
+func (t Trie) search(n *node, pattern string, parts []string, index int, params map[string]string) *node {
+	// 找到中途没找到
+	if n == nil {
+		return nil
+	}
+
+	// 找到了
+	if n.Pattern != "" {
+		return n
+	}
+
+	// 找到底了没找到
+	if len(parts) == index {
+		return nil
+	}
+
+	var findNode *node
+	for _, child := range n.Children {
+		// 如果是参数匹配，把参数取出来
+		if child.IsWild {
+			params[child.Part[1:]] = parts[index]
+			findNode = child
+		}
+
+		if child.Part == parts[index] {
+			findNode = child
+		}
+	}
+
+	return t.search(findNode, pattern, parts, index+1, params)
+}
+
 type node struct {
 	// 匹配的url(注册时提供的url，例如：/p/:lang/doc)
 	Pattern string
@@ -68,16 +118,3 @@ type node struct {
 	// 任意节点都能匹配，例如当前节点的part是:lang或者*filepath，则IsWild为true
 	IsWild bool
 }
-
-// Insert 启动服务时，将注册的url添加到前缀树中
-func (n *node) Insert(pattern string) {
-	patternTrim := strings.Trim(pattern, "/")
-	parts := strings.Split(patternTrim, "/")
-
-	n.insert(pattern, parts, 0)
-}
-
-func (n *node) insert(pattern string, parts []string, partIndex int) {
-}
-
-// search 访问时，从前缀树中查找是否有对应的url
