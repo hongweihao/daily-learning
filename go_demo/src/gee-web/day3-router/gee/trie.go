@@ -10,8 +10,11 @@ type Trie struct {
 }
 
 func NewTrie() *Trie {
+	root := &node{
+		Children: make([]*node, 0),
+	}
 	return &Trie{
-		Root: new(node),
+		Root: root,
 	}
 }
 
@@ -24,21 +27,36 @@ func (t *Trie) Insert(pattern string) {
 func (t *Trie) insert(n *node, pattern string, parts []string, index int) {
 	// 已经存在，无需插入
 	if len(parts) == index {
+		n.Pattern = pattern
 		return
 	}
 
-	// 
+	part := parts[index]
+	var findNode *node
+	//
 	for _, child := range n.Children {
-		if child.Part ==  
-		
+		// 找到匹配的part
+		if child.Part == part || child.IsWild {
+			findNode = child
+			break
+		}
 	}
 
+	// 没找到，创建一个新的节点
+	if findNode == nil {
+		newNode := new(node)
+		newNode.Part = part
+		// *filepath/:param，参数可以匹配任意值
+		newNode.IsWild = part[0] == '*' || part[0] == ':'
+
+		n.Children = append(n.Children, newNode)
+		t.insert(newNode, pattern, parts, index+1)
+		return
+	}
+
+	// 找到了，继续下一层寻找
+	t.insert(findNode, pattern, parts, index+1)
 }
-
-
-
-
-
 
 type node struct {
 	// 匹配的url(注册时提供的url，例如：/p/:lang/doc)
@@ -60,18 +78,6 @@ func (n *node) Insert(pattern string) {
 }
 
 func (n *node) insert(pattern string, parts []string, partIndex int) {
-
-	for _, v := range n.Children {
-		if v.Part == parts[partIndex] || n.IsWild {
-
-		} else {
-
-		}
-
-	}
-
 }
 
 // search 访问时，从前缀树中查找是否有对应的url
-
-

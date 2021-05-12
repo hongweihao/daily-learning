@@ -8,7 +8,7 @@ type Router struct {
 
 func NewRouter() *Router {
 	return &Router{
-		routers: make(map[string]HandleFunc, 0),
+		routers: make(map[string]HandleFunc),
 	}
 }
 
