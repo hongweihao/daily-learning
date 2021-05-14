@@ -13,6 +13,7 @@ type Context struct {
 	Rw         http.ResponseWriter
 	Path       string
 	Method     string
+	Param      map[string]string
 	StatusCode int
 }
 
@@ -65,4 +66,8 @@ func (c *Context) String(code int, text string) {
 func (c *Context) Data(code int, data []byte) {
 	c.Status(code)
 	c.Rw.Write(data)
+}
+func (c *Context) ParamGet(key string) (string, bool) {
+	v, ok := c.Param[key]
+	return v, ok
 }

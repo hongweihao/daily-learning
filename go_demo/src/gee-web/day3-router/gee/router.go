@@ -30,10 +30,18 @@ func (router *Router) addRouter(method, pattern string, handle HandleFunc) {
 }
 
 func (router *Router) handle(c *Context) {
-	key := strings.Join([]string{c.Method, c.Path}, "-")
-	if handler, ok := router.routers[key]; ok {
+	tree := router.roots[c.Method]
+	node, param := tree.Search(c.Path)
+	if node == nil {
+		c.Status(404)
+		c.Rw.Write([]byte("unknown path:" + c.Path))
+		return
+	}
+
+	key := strings.Join([]string{c.Method, node.Pattern}, "-")
+	c.Param = param
+	if handler, ok := router.handlers[key]; ok {
 		handler(c)
 		return
 	}
-	c.Rw.Write([]byte("unknown path:" + c.Path))
 }

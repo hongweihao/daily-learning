@@ -21,6 +21,10 @@ func NewTrie() *Trie {
 func (t *Trie) Insert(pattern string) {
 	patternTrim := strings.Trim(pattern, "/")
 	parts := strings.Split(patternTrim, "/")
+	if pattern == "/" {
+		t.Root.Pattern = "/"
+		return
+	}
 	t.insert(t.Root, pattern, parts, 0)
 }
 
@@ -83,7 +87,7 @@ func (t Trie) search(n *node, pattern string, parts []string, index int, params 
 	}
 
 	// 找到了
-	if n.Pattern != "" {
+	if n.Pattern != "" && len(parts)-1 == index {
 		return n
 	}
 
