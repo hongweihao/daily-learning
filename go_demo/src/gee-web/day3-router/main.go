@@ -1,6 +1,8 @@
 package main
 
-import "gee-web/day3-router/gee"
+import (
+	"gee-web/day3-router/gee"
+)
 
 func main() {
 	engine := gee.New()

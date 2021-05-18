@@ -18,11 +18,16 @@ func NewTrie() *Trie {
 	}
 }
 
-func (t *Trie) Insert(pattern string) {
-	patternTrim := strings.Trim(pattern, "/")
-	parts := strings.Split(patternTrim, "/")
-
-	t.insert(t.Root, pattern, parts, 0)
+func (t Trie) parsePattern(pattern string) []string {
+	parts := strings.Split(pattern, "/")
+	result := make([]string, 0, len(parts))
+	for _, part := range parts {
+		if part == "" || part == "/" {
+			continue
+		}
+		result = append(result, part)
+	}
+	return result
 }
 
 func (t *Trie) matchChild(n *node, part string) *node {
@@ -44,6 +49,11 @@ func (t *Trie) matchChildren(n *node, part string) []*node {
 		}
 	}
 	return nodes
+}
+
+func (t *Trie) Insert(pattern string) {
+	parts := t.parsePattern(pattern)
+	t.insert(t.Root, pattern, parts, 0)
 }
 
 func (t *Trie) insert(n *node, pattern string, parts []string, index int) {
@@ -68,44 +78,35 @@ func (t *Trie) insert(n *node, pattern string, parts []string, index int) {
 }
 
 func (t Trie) Search(pattern string) (*node, map[string]string) {
-	patternTrim := strings.Trim(pattern, "/")
-	parts := strings.Split(patternTrim, "/")
-
+	parts := t.parsePattern(pattern)
 	params := make(map[string]string)
 	n := t.search(t.Root, pattern, parts, 0, params)
 	return n, params
 }
 
 func (t Trie) search(n *node, pattern string, parts []string, index int, params map[string]string) *node {
-	// 找到中途没找到
-	if n == nil {
-		return nil
-	}
-
-	// 找到了
-	if n.Pattern != "" && len(parts)-1 == index {
+	// 当前节点是最后一个
+	if len(parts) == index {
+		if n.Pattern == "" {
+			return nil
+		}
 		return n
 	}
 
-	// 找到底了没找到
-	if len(parts) == index {
-		return nil
-	}
-
-	var findNode *node
-	for _, child := range n.Children {
-		// 如果是参数匹配，把参数取出来
-		if child.IsWild {
-			params[child.Part[1:]] = parts[index]
-			findNode = child
+	part := parts[index]
+	// 当前节点不是最后一个，继续匹配子节点
+	children := t.matchChildren(n, part)
+	for _, child := range children {
+		if child.Part[0] == ':' || child.Part[0] == '*' {
+			params[child.Part[1:]] = part
 		}
-
-		if child.Part == parts[index] {
-			findNode = child
+		found := t.search(child, pattern, parts, index+1, params)
+		if found != nil {
+			return found
 		}
 	}
-
-	return t.search(findNode, pattern, parts, index+1, params)
+	// 子节点中没找到匹配的节点
+	return nil
 }
 
 type node struct {
