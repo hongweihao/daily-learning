@@ -36,7 +36,26 @@ func TestAnyUrl(t *testing.T) {
 
 func TestSearch(t *testing.T) {
 	tree := NewTrie()
-	tree.Insert("/hello/world")
+	tree.Insert("/:hello/:world/test")
+	tree.Insert("/hello")
+	tree.Insert("/")
+
+	searchNode1, params1 := tree.Search("/")
+	t.Log(searchNode1.Pattern)
+	t.Log(params1)
+
+	searchNode2, params2 := tree.Search("/test/world")
+	t.Log(searchNode2.Pattern)
+	t.Log(params2)
+
+	searchNode3, params3 := tree.Search("/hello/world")
+	t.Log(searchNode3.Pattern)
+	t.Log(params3)
+}
+
+func TestSearchParam(t *testing.T) {
+	tree := NewTrie()
+	tree.Insert("/:hello/world")
 	tree.Insert("/hello")
 	tree.Insert("/")
 
@@ -53,28 +72,15 @@ func TestSearch(t *testing.T) {
 	t.Log(params3)
 }
 
-func TestSearchParam(t *testing.T) {
-	tree := NewTrie()
-	tree.Insert("/:hello/world")
-	tree.Insert("/hello")
-	tree.Insert("/")
-
-	// searchNode1, params1 := tree.Search("/")
-	// t.Log(searchNode1.Pattern)
-	// t.Log(params1)
-
-	// searchNode2, params2 := tree.Search("/hello")
-	// t.Log(searchNode2.Pattern)
-	// t.Log(params2)
-
-	searchNode3, params3 := tree.Search("/hello/world")
-	t.Log(searchNode3.Pattern)
-	t.Log(params3)
-}
-
 func TestParsePattern(t *testing.T) {
 	pattern := "/"
 	tree := NewTrie()
 	parts := tree.parsePattern(pattern)
 	t.Log(len(parts))
+}
+
+func TestGetParams(t *testing.T) {
+	tree := NewTrie()
+	params := tree.getParams("/:lang/:hello/test", "/go/hello")
+	t.Log(params)
 }

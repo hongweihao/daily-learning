@@ -2,6 +2,7 @@
 package gee
 
 import (
+	"fmt"
 	"strings"
 )
 
@@ -53,6 +54,10 @@ func (t *Trie) matchChildren(n *node, part string) []*node {
 
 func (t *Trie) Insert(pattern string) {
 	parts := t.parsePattern(pattern)
+	found, _ := t.Search(pattern)
+	if found != nil {
+		panic(fmt.Sprintf("Repeated pattern between %s and %s ", pattern, found.Pattern))
+	}
 	t.insert(t.Root, pattern, parts, 0)
 }
 
@@ -79,12 +84,15 @@ func (t *Trie) insert(n *node, pattern string, parts []string, index int) {
 
 func (t Trie) Search(pattern string) (*node, map[string]string) {
 	parts := t.parsePattern(pattern)
-	params := make(map[string]string)
-	n := t.search(t.Root, pattern, parts, 0, params)
+	n := t.search(t.Root, pattern, parts, 0)
+	var params map[string]string
+	if n != nil {
+		params = t.getParams(n.Pattern, pattern)
+	}
 	return n, params
 }
 
-func (t Trie) search(n *node, pattern string, parts []string, index int, params map[string]string) *node {
+func (t Trie) search(n *node, pattern string, parts []string, index int) *node {
 	// 当前节点是最后一个
 	if len(parts) == index {
 		if n.Pattern == "" {
@@ -97,16 +105,29 @@ func (t Trie) search(n *node, pattern string, parts []string, index int, params 
 	// 当前节点不是最后一个，继续匹配子节点
 	children := t.matchChildren(n, part)
 	for _, child := range children {
-		if child.Part[0] == ':' || child.Part[0] == '*' {
-			params[child.Part[1:]] = part
-		}
-		found := t.search(child, pattern, parts, index+1, params)
+		found := t.search(child, pattern, parts, index+1)
 		if found != nil {
 			return found
 		}
 	}
 	// 子节点中没找到匹配的节点
 	return nil
+}
+
+// 从2个pattern中匹配参数
+// pattern 已经注册的节点的pattern
+// cgi 用户访问的url
+func (t Trie) getParams(pattern, cgi string) map[string]string {
+	params := make(map[string]string, 0)
+	parts := t.parsePattern(pattern)
+	cgis := t.parsePattern(cgi)
+
+	for i, part := range parts {
+		if part[0] == ':' || part[0] == '*' {
+			params[part[1:]] = cgis[i]
+		}
+	}
+	return params
 }
 
 type node struct {
