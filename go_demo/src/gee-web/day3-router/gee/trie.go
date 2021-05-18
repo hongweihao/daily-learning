@@ -21,53 +21,49 @@ func NewTrie() *Trie {
 func (t *Trie) Insert(pattern string) {
 	patternTrim := strings.Trim(pattern, "/")
 	parts := strings.Split(patternTrim, "/")
-	if pattern == "/" {
-		t.Root.Pattern = "/"
-		return
-	}
+
 	t.insert(t.Root, pattern, parts, 0)
 }
 
-// todo bug repeated pattern
+func (t *Trie) matchChild(n *node, part string) *node {
+	for _, child := range n.Children {
+		// 找到匹配的part
+		if child.Part == part || child.IsWild {
+			return child
+		}
+	}
+	return nil
+}
+
+func (t *Trie) matchChildren(n *node, part string) []*node {
+	nodes := make([]*node, 0)
+	for _, child := range n.Children {
+		// 找到匹配的part
+		if child.Part == part || child.IsWild {
+			nodes = append(nodes, child)
+		}
+	}
+	return nodes
+}
+
 func (t *Trie) insert(n *node, pattern string, parts []string, index int) {
-	// 已经存在，无需插入
+	// 最后一part，打上pattern
 	if len(parts) == index {
 		n.Pattern = pattern
 		return
 	}
 
 	part := parts[index]
-	var findNode *node
-	//
-	for _, child := range n.Children {
-		// 找到匹配的part
-		if child.Part == part || child.IsWild {
-			findNode = child
-			break
-		}
-
-		// 任意匹配， repeatedly insert
-		//if part[0] == ':' || part[0] == '*' {
-		//	child.Part = part
-		//	child.IsWild = true
-		//	findNode = child
-		//	break
-		//}
-	}
-
+	findNode := t.matchChild(n, part)
 	// 没找到，创建一个新的节点
 	if findNode == nil {
-		newNode := new(node)
-		newNode.Part = part
+		findNode = new(node)
+		findNode.Part = part
 		// *filepath/:param，参数可以匹配任意值
-		newNode.IsWild = part[0] == '*' || part[0] == ':'
-
-		n.Children = append(n.Children, newNode)
-		t.insert(newNode, pattern, parts, index+1)
-		return
+		findNode.IsWild = part[0] == '*' || part[0] == ':'
+		n.Children = append(n.Children, findNode)
 	}
 
-	// 找到了，继续下一层寻找
 	t.insert(findNode, pattern, parts, index+1)
 }
 
