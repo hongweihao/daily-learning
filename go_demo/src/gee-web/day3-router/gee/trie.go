@@ -105,6 +105,10 @@ func (t Trie) search(n *node, pattern string, parts []string, index int) *node {
 	// 当前节点不是最后一个，继续匹配子节点
 	children := t.matchChildren(n, part)
 	for _, child := range children {
+		// *filepath
+		if strings.HasPrefix(child.Part, "*") {
+			return child
+		}
 		found := t.search(child, pattern, parts, index+1)
 		if found != nil {
 			return found
@@ -123,8 +127,13 @@ func (t Trie) getParams(pattern, cgi string) map[string]string {
 	cgis := t.parsePattern(cgi)
 
 	for i, part := range parts {
-		if part[0] == ':' || part[0] == '*' {
+		if part[0] == ':' {
 			params[part[1:]] = cgis[i]
+			continue
+		}
+		if part[0] == '*' {
+			params[part[1:]] = strings.Join(cgis[i:], "/")
+			break
 		}
 	}
 	return params

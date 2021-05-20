@@ -31,14 +31,14 @@ func (router *Router) addRouter(method, pattern string, handle HandleFunc) {
 
 func (router *Router) handle(c *Context) {
 	tree := router.roots[c.Method]
-	node, param := tree.Search(c.Path)
-	if node == nil {
+	n, param := tree.Search(c.Path)
+	if n == nil {
 		c.Status(404)
 		c.Rw.Write([]byte("unknown path:" + c.Path))
 		return
 	}
 
-	key := strings.Join([]string{c.Method, node.Pattern}, "-")
+	key := strings.Join([]string{c.Method, n.Pattern}, "-")
 	c.Param = param
 	if handler, ok := router.handlers[key]; ok {
 		handler(c)
