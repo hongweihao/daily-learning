@@ -6,9 +6,21 @@ import (
 	"strings"
 )
 
-type Trie struct {
-	Root *node
-}
+type (
+	Trie struct {
+		Root *node
+	}
+	node struct {
+		// 匹配的url(注册时提供的url，例如：/p/:lang/doc)
+		Pattern string
+		// url中的一段，例如：p  :lang  doc
+		Part string
+		// 子节点
+		Children []*node
+		// 任意节点都能匹配，例如当前节点的part是:lang或者*filepath，则IsWild为true
+		IsWild bool
+	}
+)
 
 func NewTrie() *Trie {
 	root := &node{
@@ -137,15 +149,4 @@ func (t Trie) getParams(pattern, cgi string) map[string]string {
 		}
 	}
 	return params
-}
-
-type node struct {
-	// 匹配的url(注册时提供的url，例如：/p/:lang/doc)
-	Pattern string
-	// url中的一段，例如：p  :lang  doc
-	Part string
-	// 子节点
-	Children []*node
-	// 任意节点都能匹配，例如当前节点的part是:lang或者*filepath，则IsWild为true
-	IsWild bool
 }
