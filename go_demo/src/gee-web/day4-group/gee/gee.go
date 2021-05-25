@@ -7,48 +7,52 @@ import (
 
 type HandleFunc func(c *Context)
 
-type Engine struct {
-	routers *Router
-}
+type (
+	Engine struct {
+		*RouterGroup
+		routers *Router
+	}
+	RouterGroup struct {
+		prefix     string
+		middleware []HandleFunc
+		engine     *Engine
+	}
+)
 
 func New() *Engine {
-	return &Engine{
-		routers: NewRouter(),
-	}
+	// 循环指针: Engine <-> RouterGroup
+	engine := new(Engine)
+	engine.routers = NewRouter()
+
+	group := new(RouterGroup)
+	group.engine = engine
+
+	engine.RouterGroup = group
+	return engine
 }
 
 func (engine *Engine) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	c := NewContext(rw, r)
 	engine.routers.handle(c)
 }
-
-func (engine *Engine) GET(pattern string, handle HandleFunc) {
-	engine.routers.addRouter(http.MethodGet, pattern, handle)
-}
-func (engine *Engine) POST(pattern string, handle HandleFunc) {
-	engine.routers.addRouter(http.MethodPost, pattern, handle)
-}
-func (engine *Engine) Run(addr string) {
-	http.ListenAndServe(addr, engine)
+func (engine *Engine) Run(addr string) error {
+	return http.ListenAndServe(addr, engine)
 }
 
-func (engine *Engine) Group(prefix string) *RouterGroup {
+func (routerGroup *RouterGroup) GET(pattern string, handle HandleFunc) {
+	routerGroup.addRouter(http.MethodGet, pattern, handle)
+}
+func (routerGroup *RouterGroup) POST(pattern string, handle HandleFunc) {
+	routerGroup.addRouter(http.MethodPost, pattern, handle)
+}
+func (routerGroup *RouterGroup) addRouter(method string, pattern string, handle HandleFunc) {
+	routerGroup.engine.routers.addRouter(method, routerGroup.prefix+pattern, handle)
+}
+
+func (routerGroup *RouterGroup) Group(prefix string) *RouterGroup {
+	engine := routerGroup.engine
 	group := new(RouterGroup)
-	group.prefix = prefix
+	group.prefix += prefix
 	group.engine = engine
 	return group
-}
-
-type RouterGroup struct {
-	prefix     string
-	middleware []HandleFunc
-	//parent *RouterGroup
-	engine *Engine
-}
-
-func (rg *RouterGroup) GET(pattern string, handle HandleFunc) {
-	rg.engine.routers.addRouter(http.MethodGet, rg.prefix+pattern, handle)
-}
-func (rg *RouterGroup) POST(pattern string, handle HandleFunc) {
-	rg.engine.routers.addRouter(http.MethodPost, rg.prefix+pattern, handle)
 }

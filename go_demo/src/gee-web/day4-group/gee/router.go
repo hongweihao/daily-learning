@@ -1,6 +1,7 @@
 package gee
 
 import (
+	"log"
 	"strings"
 )
 
@@ -27,6 +28,7 @@ func (router *Router) addRouter(method, pattern string, handle HandleFunc) {
 
 	key := strings.Join([]string{method, pattern}, "-")
 	router.handlers[key] = handle
+	log.Printf("[Gee Web]\t[%s]\t-\t%s\n", method, pattern)
 }
 
 func (router *Router) handle(c *Context) {
