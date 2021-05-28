@@ -2,8 +2,10 @@
 package gee
 
 import (
+	"fmt"
 	"log"
 	"net/http"
+	"runtime"
 	"strings"
 	"time"
 )
@@ -105,8 +107,19 @@ func Recovery() HandleFunc {
 	return func(c *Context) {
 		defer func() {
 			if err := recover(); err != nil {
-				log.Println("[Gee Web] [Panic] Internal server error | ", err)
-
+				var logPrint strings.Builder
+				logPrint.WriteString(fmt.Sprintf("[Gee Web] [Panic] %s trace back:", err))
+				var pcs [32]uintptr
+				// 跳过前3个caller
+				n := runtime.Callers(3, pcs[:])
+				for _, pc := range pcs[:n] {
+					// 获取对应函数
+					fun := runtime.FuncForPC(pc)
+					// 获取函数文件名和行号
+					fileName, line := fun.FileLine(pc)
+					logPrint.WriteString(fmt.Sprintf("\t%s:%d\n", fileName, line))
+				}
+				log.Println(logPrint.String())
 				c.String(http.StatusInternalServerError, "Internal server error")
 			}
 		}()
