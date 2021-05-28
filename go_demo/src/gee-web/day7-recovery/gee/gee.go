@@ -108,7 +108,7 @@ func Recovery() HandleFunc {
 		defer func() {
 			if err := recover(); err != nil {
 				var logPrint strings.Builder
-				logPrint.WriteString(fmt.Sprintf("[Gee Web] [Panic] %s trace back:", err))
+				logPrint.WriteString(fmt.Sprintf("[Gee Web] [Panic] %s trace back:\n", err))
 				var pcs [32]uintptr
 				// 跳过前3个caller
 				n := runtime.Callers(3, pcs[:])
