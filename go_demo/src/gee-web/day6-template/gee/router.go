@@ -33,7 +33,6 @@ func (router *Router) addRouter(method, pattern string, handle HandleFunc) {
 }
 
 func (router *Router) handle(c *Context) {
-
 	tree := router.roots[c.Method]
 	n, param := tree.Search(c.Path)
 	if n == nil {
