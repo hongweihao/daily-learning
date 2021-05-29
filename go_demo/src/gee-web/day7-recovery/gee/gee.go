@@ -41,8 +41,8 @@ func New() *Engine {
 
 func Default() *Engine {
 	engine := New()
-	engine.Use(Logger())
-	engine.Use(Recovery())
+	engine.Use(Logger(), Recovery())
+	//engine.Use(Recovery())
 	return engine
 }
 
@@ -84,12 +84,12 @@ func (routerGroup *RouterGroup) Group(prefix string) *RouterGroup {
 	return group
 }
 
-func (routerGroup *RouterGroup) Use(middleware HandleFunc) {
+func (routerGroup *RouterGroup) Use(middleware ...HandleFunc) {
 	if routerGroup.middleware == nil {
 		routerGroup.middleware = make([]HandleFunc, 0)
 	}
 
-	routerGroup.middleware = append(routerGroup.middleware, middleware)
+	routerGroup.middleware = append(routerGroup.middleware, middleware...)
 }
 
 func Logger() HandleFunc {
