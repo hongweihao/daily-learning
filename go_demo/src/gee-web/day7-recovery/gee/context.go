@@ -55,6 +55,7 @@ func (c *Context) JSON(code int, rsp interface{}) {
 	if err != nil {
 		c.Status(http.StatusInternalServerError)
 		c.Rw.Write([]byte(err.Error()))
+		return
 	}
 	c.Status(code)
 	c.Rw.Write(bs)
