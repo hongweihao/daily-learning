@@ -3,6 +3,7 @@ package gee
 
 import (
 	"fmt"
+	"html/template"
 	"log"
 	"net/http"
 	"runtime"
@@ -17,6 +18,11 @@ type (
 		*RouterGroup
 		routers *Router
 		groups  []*RouterGroup
+		// 定义了将所有的模板都 load 进 engine 对象
+		templates *template.Template
+
+		// 自定义模板渲染函数的列表
+		funcMap template.FuncMap
 	}
 	RouterGroup struct {
 		prefix     string
@@ -55,12 +61,22 @@ func (engine *Engine) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	c := NewContext(rw, r, middlewares)
+	c := NewContext(rw, r, middlewares, engine)
 	engine.routers.handle(c)
 }
 func (engine *Engine) Run(addr string) error {
 	log.Println("[Gee Web] Server listening at " + addr)
 	return http.ListenAndServe(addr, engine)
+}
+func (engine *Engine) SetFuncMap(fm template.FuncMap) {
+	engine.funcMap = fm
+}
+
+// LoadHTMLGlob 将所有的模板都加载进engine对象中
+//
+func (engine *Engine) LoadHTMLGlob(pattern string) {
+	glob, err := template.New("").Funcs(engine.funcMap).ParseGlob(pattern)
+	engine.templates = template.Must(glob, err)
 }
 
 func (routerGroup *RouterGroup) GET(pattern string, handle HandleFunc) {
@@ -90,6 +106,39 @@ func (routerGroup *RouterGroup) Use(middleware ...HandleFunc) {
 	}
 
 	routerGroup.middleware = append(routerGroup.middleware, middleware...)
+}
+
+func (routerGroup *RouterGroup) Static(pattern, root string) {
+	// 创建静态文件请求处理器
+	handler := routerGroup.createStaticHandler(pattern, root)
+	routerGroup.GET(pattern+"/*filepath", handler)
+}
+
+// createStaticHandler 创建静态文件处理器
+// @pattern 请求目录的prefix
+// @fileSystem 资源文件的真是目录
+func (routerGroup *RouterGroup) createStaticHandler(pattern, root string) HandleFunc {
+	reqPath := routerGroup.prefix + pattern
+	fileSystem := http.Dir(root)
+	// StripPrefix 用于将请求重定向到fileServer之前将 req path 的 prefix 拿掉
+	fileServer := http.StripPrefix(reqPath, http.FileServer(fileSystem))
+
+	// 处理器逻辑：从req path 中获取除prefix之外的文件名称并查看文件是否存在
+	// 如果不存在则直接返回错误，如果存在则将请求交给httpServer静态服务器
+	return func(c *Context) {
+		fileName, ok := c.ParamGet("filepath")
+		if !ok {
+			c.String(http.StatusNotFound, "Not found file:"+fileName+"("+reqPath+" -> "+root+")")
+			return
+		}
+
+		if _, err := fileSystem.Open(fileName); err != nil {
+			c.String(http.StatusNotFound, "Not found file:"+fileName+"("+reqPath+" -> "+root+")")
+			return
+		}
+
+		fileServer.ServeHTTP(c.Rw, c.Req)
+	}
 }
 
 func Logger() HandleFunc {

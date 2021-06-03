@@ -19,9 +19,11 @@ type Context struct {
 	// middleware
 	middlewares      []HandleFunc
 	middlewaresIndex int
+
+	engine *Engine
 }
 
-func NewContext(rw http.ResponseWriter, req *http.Request, middlewares []HandleFunc) *Context {
+func NewContext(rw http.ResponseWriter, req *http.Request, middlewares []HandleFunc, engine *Engine) *Context {
 	return &Context{
 		Req:              req,
 		Rw:               rw,
@@ -29,6 +31,7 @@ func NewContext(rw http.ResponseWriter, req *http.Request, middlewares []HandleF
 		Method:           req.Method,
 		middlewares:      middlewares,
 		middlewaresIndex: -1,
+		engine:           engine,
 	}
 }
 
@@ -60,10 +63,12 @@ func (c *Context) JSON(code int, rsp interface{}) {
 	c.Status(code)
 	c.Rw.Write(bs)
 }
-func (c *Context) HTML(code int, html string) {
+func (c *Context) HTML(code int, name string, data interface{}) {
 	c.SetHeader("Content-Type", "text/html")
 	c.Status(code)
-	c.Rw.Write([]byte(html))
+	if err := c.engine.templates.ExecuteTemplate(c.Rw, name, data); err != nil {
+		c.String(http.StatusInternalServerError, err.Error())
+	}
 }
 func (c *Context) String(code int, text string) {
 	c.SetHeader("Content-Type", "text/plain")
